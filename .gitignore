@@ -1,0 +1,22 @@
+# Declaraciones generadas por Claude Code al cargar un mod
+mods/*/.claude-plugin/types/
+
+# Configuración local de Claude Code
+.claude/settings.local.json
+CLAUDE.local.md
+
+# Node / TypeScript
+node_modules/
+*.tsbuildinfo
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Sistema operativo y editores
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/

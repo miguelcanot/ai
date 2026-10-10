@@ -1,0 +1,7 @@
+{
+  "name": "mcanot-mods",
+  "owner": { "name": "Miguel Canot" },
+  "plugins": [
+    { "name": "session-info", "source": "./", "description": "Panel en vivo de la sesión: modelo, git, herramientas, tokens, archivos y actividad" }
+  ]
+}
