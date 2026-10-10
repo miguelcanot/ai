@@ -1,10 +1,12 @@
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register, Timer } from 'claude-code'
 
-import type { Activity, Live, PlanLimit, ToolUse } from '../types'
+import type { Activity, AgentRun, AgentState, Live, PlanLimit, ToolUse } from '../types'
 
 const PANE = 'session-info'
 const MAX_EVENTS = 200
+const MAX_AGENTS = 50
+const MAX_AGENT_ROWS = 6
 
 const initial: Live = {
   startedAt: 0,
@@ -26,6 +28,7 @@ const initial: Live = {
   errors: 0,
   files: {},
   events: [],
+  agents: {},
 }
 const live = atom({ plugin: 'session-info', key: 'live' } as const, initial)
 const expanded = atom({ plugin: 'session-info', key: 'expanded' } as const, null)
@@ -134,9 +137,75 @@ const fmtUsd = (usd?: number) => (usd === undefined ? '—' : `$${usd.toFixed(us
 const ICON: Record<Activity['status'], string> = { run: '●', ok: '✓', err: '✗', deny: '⊘' }
 const COLOR: Record<Activity['status'], string> = { run: 'warning', ok: 'success', err: 'error', deny: 'error' }
 
+const AGENT_ICON: Record<AgentState, string> = {
+  pending: '○', running: '●', waiting: '◐', idle: '◌', completed: '✓', failed: '✗', killed: '⊘',
+}
+const AGENT_COLOR: Record<AgentState, string> = {
+  pending: 'subtle', running: 'warning', waiting: 'suggestion', idle: 'subtle', completed: 'success', failed: 'error', killed: 'error',
+}
+const AGENT_WORD: Record<AgentState, string> = {
+  pending: 'en cola', running: 'corriendo', waiting: 'esperando', idle: 'inactivo', completed: 'terminó', failed: 'falló', killed: 'detenido',
+}
+const isActive = (a: AgentRun) => a.status === 'pending' || a.status === 'running' || a.status === 'waiting'
+const activeAgents = (l: Live) => Object.values(l.agents).filter(isActive)
+
+/** Merges a change into one agent, adding it first when the pane has not seen it yet. */
+const withAgent = (l: Live, id: string, change: (a: AgentRun) => AgentRun, at: number): Live => {
+  const was: AgentRun = l.agents[id] ?? {
+    id, type: 'agente', description: '', background: false, isTeammate: false, status: 'running',
+    startedAt: at, tools: 0, errors: 0, tokensIn: 0, tokensOut: 0, listed: false,
+  }
+  const agents = { ...l.agents, [id]: change(was) }
+  const ids = Object.keys(agents)
+  if (ids.length > MAX_AGENTS) {
+    // drop the oldest finished ones first; active agents always stay
+    for (const old of ids.filter(k => { const a = agents[k]; return a !== undefined && !isActive(a) }).slice(0, ids.length - MAX_AGENTS)) delete agents[old]
+  }
+  return { ...l, agents }
+}
+
+const agentLabel = (a: AgentRun) => a.name ?? a.type
+
+/** Brings statuses in line with the engine's list; one that left it after being listed has ended. */
+const syncAgents = async ($: EngineInterface) => {
+  let list
+  try {
+    list = await $.agent.list()
+  } catch {
+    return
+  }
+  const now = await $.clock.now()
+  await update($, live, l => {
+    let next = l
+    const seen = new Set<string>()
+    for (const info of list) {
+      seen.add(info.id)
+      next = withAgent(next, info.id, a => ({
+        ...a,
+        type: a.type === 'agente' ? info.type : a.type,
+        description: a.description || info.description,
+        name: a.name ?? info.name,
+        parentId: a.parentId ?? info.parentId,
+        isTeammate: a.isTeammate || info.teammateId !== undefined,
+        status: info.status,
+        endedAt: isActive(a) && !['pending', 'running', 'waiting'].includes(info.status) ? a.endedAt ?? now : a.endedAt,
+        current: ['pending', 'running', 'waiting'].includes(info.status) ? a.current : undefined,
+        listed: true,
+      }), now)
+    }
+    for (const a of Object.values(next.agents)) {
+      if (a.listed && !seen.has(a.id) && isActive(a)) {
+        next = withAgent(next, a.id, x => ({ ...x, status: 'completed', endedAt: x.endedAt ?? now, current: undefined }), now)
+      }
+    }
+    return next
+  })
+}
+
 const push = (l: Live, a: Activity): Live => ({ ...l, events: [...l.events, a].slice(-MAX_EVENTS) })
 const countTools = (l: Live) => Object.values(l.tools).reduce((a, b) => a + b, 0)
-const runningTool = (l: Live) => l.events.filter(a => a.status === 'run' && a.kind === 'tool').at(-1)
+/** The main loop's tool in flight; agents' tools show in their own rows. */
+const runningTool = (l: Live) => l.events.filter(a => a.status === 'run' && a.kind === 'tool' && a.agentId === undefined).at(-1)
 
 const statusLine = (l: Live) => {
   const running = runningTool(l)
@@ -145,7 +214,8 @@ const statusLine = (l: Live) => {
     .filter(x => x.kind === 'five_hour' || x.kind === 'seven_day')
     .map(x => `${x.kind === 'five_hour' ? '5h' : 'sem'} ${Math.round(x.percentUsed)}%`)
     .join(' ')
-  return `${state} · ${fmtK(l.tokensOut)} tok salida · ${fmtUsd(l.costUsd)}${plan ? ` · ${plan}` : ''} · ${countTools(l)} herr.`
+  const agents = activeAgents(l).length
+  return `${state} · ${fmtK(l.tokensOut)} tok salida · ${fmtUsd(l.costUsd)}${plan ? ` · ${plan}` : ''} · ${countTools(l)} herr.${agents ? ` · ${agents} ag.` : ''}`
 }
 
 const summary = (l: Live) =>
@@ -157,20 +227,40 @@ const summary = (l: Live) =>
       x => `${limitName(x.kind)}: ${x.percentUsed}% usado, ${Math.max(0, Math.round((100 - x.percentUsed) * 10) / 10)}% disponible${x.resetsAt ? ` · se restablece en ${fmtResetIn(x.resetsAt, l.now)}` : ''}`,
     ),
     `Archivos modificados: ${Object.keys(l.files).length}`,
+    ...(Object.keys(l.agents).length
+      ? [
+          `Agentes: ${activeAgents(l).length} activos de ${Object.keys(l.agents).length}`,
+          ...activeAgents(l).map(
+            a => `  ${AGENT_ICON[a.status]} ${agentLabel(a)}: ${a.description || '(sin descripción)'} · ${AGENT_WORD[a.status]} ${fmtElapsed(l.now - a.startedAt)} · ${a.tools} herr.${a.current ? ` · ${a.current}` : ''}`,
+          ),
+        ]
+      : []),
   ].join('\n')
 
 const tick = async ($: EngineInterface) => {
   const now = await $.clock.now()
   await update($, live, l => ({ ...l, now }))
+  await syncAgents($)
+}
+
+// the clock runs while the main loop works or any agent does (background ones outlive the turn)
+let ticker: Timer | undefined
+const startTicker = ($: EngineInterface) => {
+  ticker ??= $.clock.every(1000, () => void tick($))
+}
+const stopTickerIfIdle = async ($: EngineInterface) => {
+  const l = await read($, live)
+  if (l.isBusy || activeAgents(l).length) return
+  ticker?.cancel()
+  ticker = undefined
 }
 
 export const register: Register = on => {
-  let ticker: Timer | undefined
 
   on('session.start', async ($, e, next) => {
     await $.command.register({
       name: 'session-info',
-      description: 'Panel en vivo de la sesión: modelo, git, herramientas, tokens, archivos y actividad',
+      description: 'Panel en vivo de la sesión: modelo, git, herramientas, agentes, tokens, archivos y actividad',
       argumentHint: '[cerrar]',
       immediate: true,
     })
@@ -195,6 +285,7 @@ export const register: Register = on => {
     await update($, live, l => ({ ...initial, ...l, startedAt: l.startedAt || now, now, model }))
     await refreshGit($)
     await refreshUsage($)
+    await syncAgents($)
     const { isPlaced } = await $.ui.open({ id: PANE, title: 'Sesión' })
     const l = await read($, live)
 
@@ -209,10 +300,45 @@ export const register: Register = on => {
         { id: `p${now}`, at: now, kind: 'prompt', label: 'prompt', detail: short(e.text, 60), status: 'ok' },
       ),
     )
-    ticker?.cancel()
-    ticker = $.clock.every(1000, () => void tick($))
+    startTicker($)
 
     return next(e)
+  }).catch(($, e, next) => next(e))
+
+  on('agent.spawn', async ($, e, next) => {
+    const ran = await next(e)
+    if (ran.agentId === undefined) return ran
+    const id = ran.agentId
+    const now = await $.clock.now()
+    await update($, live, l => {
+      const after = push(
+        withAgent(l, id, a => ({
+          ...a,
+          type: e.fork ? 'fork' : e.subagentType,
+          description: e.description,
+          name: e.name ?? a.name,
+          model: ran.model,
+          parentId: e.parentAgentId,
+          background: e.background,
+          isTeammate: e.isTeammate === true,
+          status: 'running',
+          startedAt: now,
+        }), now),
+        {
+          id: `a${id}`,
+          at: now,
+          kind: 'agent',
+          label: `agente ${e.name ?? (e.fork ? 'fork' : e.subagentType)}`,
+          detail: `${short(e.description, 50)}${e.background ? ' · en segundo plano' : ''}`,
+          status: 'run',
+        },
+      )
+      $.ui.status(statusLine(after))
+      return after
+    })
+    startTicker($)
+
+    return ran
   }).catch(($, e, next) => next(e))
 
   on('tool.call', async ($, e, next) => {
@@ -230,10 +356,14 @@ export const register: Register = on => {
           tools: { ...l.tools, [e.tool]: (l.tools[e.tool] ?? 0) + 1 },
           toolDetails: { ...l.toolDetails, [e.tool]: addUse(l.toolDetails[e.tool] ?? {}, key, started) },
         },
-        { id: e.tool_use_id, at: started, kind: 'tool', label: e.tool, detail: describe(input), status: 'run' },
+        { id: e.tool_use_id, at: started, kind: 'tool', label: e.tool, detail: describe(input), status: 'run', agentId: e.agentId },
       )
-      $.ui.status(statusLine(after))
-      return after
+      const tracked =
+        e.agentId === undefined
+          ? after
+          : withAgent(after, e.agentId, a => ({ ...a, current: `${e.tool} ${describe(input)}`.trim(), currentAt: started }), started)
+      $.ui.status(statusLine(tracked))
+      return tracked
     })
 
     const ran = await next(e)
@@ -257,8 +387,18 @@ export const register: Register = on => {
         files: writes && path && status === 'ok' ? { ...l.files, [path]: (l.files[path] ?? 0) + 1 } : l.files,
         events: l.events.map(a => (a.id === e.tool_use_id ? { ...a, status, ms: ended - started } : a)),
       }
-      $.ui.status(statusLine(after))
-      return after
+      const tracked =
+        e.agentId === undefined
+          ? after
+          : withAgent(after, e.agentId, a => ({
+              ...a,
+              tools: a.tools + 1,
+              errors: a.errors + (status === 'ok' ? 0 : 1),
+              // a later call may already have replaced it
+              current: a.currentAt === started ? undefined : a.current,
+            }), ended)
+      $.ui.status(statusLine(tracked))
+      return tracked
     })
 
     return ran
@@ -279,8 +419,18 @@ export const register: Register = on => {
           tokensCacheWrite: l.tokensCacheWrite + u.cache_creation_input_tokens,
           model: e.agentId === undefined ? u.model : l.model,
         }
-        $.ui.status(statusLine(after))
-        return after
+        if (e.agentId === undefined) {
+          $.ui.status(statusLine(after))
+          return after
+        }
+        const tracked = withAgent(after, e.agentId, a => ({
+          ...a,
+          model: a.model ?? u.model,
+          tokensIn: a.tokensIn + u.input_tokens,
+          tokensOut: a.tokensOut + u.output_tokens,
+        }), l.now)
+        $.ui.status(statusLine(tracked))
+        return tracked
       })
     }
     if (e.agentId === undefined) await refreshUsage($)
@@ -299,7 +449,34 @@ export const register: Register = on => {
   })
 
   on('turn.complete', async ($, e, next) => {
-    if (e.agentId !== undefined) return next(e)
+    if (e.agentId !== undefined) {
+      const id = e.agentId
+      const now = await $.clock.now()
+      await update($, live, l => {
+        const was = l.agents[id]
+        // a teammate goes idle between turns; any other agent is done
+        const status: AgentState = e.isAborted ? 'killed' : was?.isTeammate ? 'idle' : 'completed'
+        const after = withAgent(l, id, a => ({ ...a, status, endedAt: now, current: undefined }), now)
+        const done = after.agents[id]
+        if (!done) return after
+        const ended = push(
+          { ...after, now, events: after.events.map(x => (x.id === `a${id}` ? { ...x, status: e.isAborted ? 'err' : 'ok', ms: now - done.startedAt } : x)) },
+          {
+            id: `${e.turnId}-${id}`,
+            at: now,
+            kind: 'agent',
+            label: `agente ${agentLabel(done)}`,
+            detail: `${AGENT_WORD[status]} · ${done.tools} herr. · ↑${fmtK(done.tokensOut)} tokens`,
+            status: e.isAborted ? 'err' : 'ok',
+            ms: e.durationMs,
+          },
+        )
+        $.ui.status(statusLine(ended))
+        return ended
+      })
+      await stopTickerIfIdle($)
+      return next(e)
+    }
     const now = await $.clock.now()
     const u = e.usage
     await update($, live, l => {
@@ -310,7 +487,8 @@ export const register: Register = on => {
           isBusy: false,
           turns: l.turns + 1,
           model: u?.model ?? l.model,
-          events: l.events.map(a => (a.status === 'run' ? { ...a, status: 'err' as const } : a)),
+          // a tool of the main loop still marked running never returned; agents keep their own
+          events: l.events.map(a => (a.status === 'run' && a.kind === 'tool' && a.agentId === undefined ? { ...a, status: 'err' as const } : a)),
         },
         {
           id: e.turnId,
@@ -325,8 +503,7 @@ export const register: Register = on => {
       $.ui.status(statusLine(after))
       return after
     })
-    ticker?.cancel()
-    ticker = undefined
+    await stopTickerIfIdle($)
     await refreshGit($)
     await refreshUsage($)
 
@@ -354,7 +531,13 @@ export const register: Register = on => {
       : []
     const shownDetails = Math.min(details.length, MAX_DETAILS) + (details.length > MAX_DETAILS ? 1 : 0)
     const planRows = l.limits.length ? l.limits.length + 2 : 0
-    const fixed = planRows + shownDetails + 16 + Math.min(tools.length, 8) + (files.length ? Math.min(files.length, 5) + 2 : 0)
+    const allAgents = Object.values(l.agents)
+    const active = allAgents.filter(isActive)
+    const finished = allAgents.filter(a => !isActive(a)).sort((a, b) => (b.endedAt ?? 0) - (a.endedAt ?? 0))
+    const agentRows = [...active, ...finished].slice(0, Math.max(MAX_AGENT_ROWS, active.length))
+    const agentW = Math.max(4, ...agentRows.map(a => agentLabel(a).length))
+    const agentLines = agentRows.length ? agentRows.length + agentRows.filter(a => a.current).length + 2 : 0
+    const fixed = planRows + shownDetails + agentLines + 16 + Math.min(tools.length, 8) + (files.length ? Math.min(files.length, 5) + 2 : 0)
     const room = Math.max(3, rows - fixed)
 
     return (
@@ -377,10 +560,47 @@ export const register: Register = on => {
             </Text>
           ) : l.isBusy ? (
             <Text color="claude">● pensando…</Text>
+          ) : active.length ? (
+            <Text color="suggestion">◐ esperando a {active.length === 1 ? '1 agente' : `${active.length} agentes`}</Text>
           ) : (
             <Text dimColor>○ en espera</Text>
           )}
         </Box>
+
+        {agentRows.length > 0 && (
+          <Box marginTop={1} flexDirection="column">
+            <Text bold>
+              Agentes <Text color={active.length ? 'warning' : 'subtle'}>{active.length} activos</Text>
+              <Text dimColor> de {allAgents.length}</Text>
+            </Text>
+            {agentRows.map(a => (
+              <Box key={`agent-${a.id}`} flexDirection="column">
+                <Text wrap="truncate-end">
+                  {a.parentId ? '    ' : '  '}
+                  <Text color={AGENT_COLOR[a.status]}>{AGENT_ICON[a.status]} </Text>
+                  <Text bold={isActive(a)}>{agentLabel(a).padEnd(agentW)} </Text>
+                  <Text>{a.description || '(sin descripción)'}</Text>
+                  <Text dimColor>
+                    {' · '}{AGENT_WORD[a.status]} {fmtElapsed((a.endedAt ?? l.now) - a.startedAt)}
+                    {' · '}{a.tools} herr.{a.tokensOut ? ` · ↑${fmtK(a.tokensOut)}` : ''}
+                    {a.model ? ` · ${a.model}` : ''}{a.background ? ' · 2º plano' : ''}
+                  </Text>
+                  {a.errors > 0 && <Text color="error"> · {a.errors} err</Text>}
+                </Text>
+                {a.current && (
+                  <Text wrap="truncate-end">
+                    {a.parentId ? '      ' : '    '}<Text color="suggestion">└ </Text>
+                    <Text color="warning">{a.current}</Text>
+                    {a.currentAt !== undefined && <Text dimColor> · {fmtMs(Math.max(0, l.now - a.currentAt))}</Text>}
+                  </Text>
+                )}
+              </Box>
+            ))}
+            {allAgents.length > agentRows.length && (
+              <Text dimColor>  … y {allAgents.length - agentRows.length} terminados más</Text>
+            )}
+          </Box>
+        )}
 
         <Box marginTop={1} flexDirection="column">
           <Text bold>

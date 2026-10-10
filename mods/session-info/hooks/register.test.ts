@@ -124,3 +124,57 @@ test('plan windows show used and available for the session and the week', async 
   expect(text).toContain('Sesión (5 h): 42% usado, 58% disponible · se restablece en')
   expect(text).toContain('Semana (7 d): 87.5% usado, 12.5% disponible')
 })
+
+test('agents show while running and once they finish', async ($, on) => {
+  engine(on)
+  on('agent.spawn', () => ({ model: 'claude-haiku-5-5', agentId: 'ag1' }))
+  on('turn.step', async function* () {
+    yield* []
+    return {
+      turnId: 's1',
+      index: 0,
+      answer: '',
+      toolUses: [],
+      stopReason: 'end_turn' as const,
+      usage: { model: 'claude-haiku-5-5', input_tokens: 800, output_tokens: 2500, cache_read_input_tokens: 0, cache_creation_input_tokens: 0 },
+    }
+  })
+
+  await $.agent.spawn({
+    tool_use_id: 'tu1',
+    prompt: 'Busca las rutas',
+    description: 'buscar rutas',
+    subagentType: 'Explore',
+    provider: { plugin: 'engine', tier: 'core' },
+    parentModel: 'claude-opus-5-5',
+    background: true,
+    fork: false,
+  })
+  for await (const _chunk of $.turn.step({ turnId: 's1', index: 0, model: 'claude-haiku-5-5', messageCount: 1, agentId: 'ag1' })) {
+    // drained: the step's usage lands once the stream ends
+  }
+  let { text } = await $.command.run(RUN)
+
+  expect(text).toContain('Agentes: 1 activos de 1')
+  expect(text).toContain('Explore: buscar rutas · corriendo')
+  // the main model stays the session's, not the subagent's
+  expect(text).toContain('Sesión  claude-opus-5-5')
+
+  await $.turn.complete({ turnId: 't9', agentId: 'ag1', answer: 'listo', durationMs: 1200, isAborted: false, reason: 'answer' })
+  ;({ text } = await $.command.run(RUN))
+
+  expect(text).toContain('Agentes: 0 activos de 1')
+})
+
+test('the engine list adds agents the pane missed and ends the ones it drops', async ($, on) => {
+  engine(on)
+  let listed = [{ id: 'ag2', description: 'revisar tests', type: 'general-purpose', status: 'running' as const }]
+  on('agent.list', () => ({ value: listed }))
+
+  let { text } = await $.command.run(RUN)
+  expect(text).toContain('general-purpose: revisar tests · corriendo')
+
+  listed = []
+  ;({ text } = await $.command.run(RUN))
+  expect(text).toContain('Agentes: 0 activos de 1')
+})

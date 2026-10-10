@@ -40,7 +40,9 @@ Each skill is a `SKILL.md` with YAML frontmatter (`name`, `description`). The `d
 
 ## Mods (`mods/session-info`)
 
-A Claude Code function-hooks plugin providing `/session-info`, a live pane with model, git, tools, tokens, plan limits, files and activity.
+A Claude Code function-hooks plugin providing `/session-info`, a live pane with model, git, tools, running agents, tokens, plan limits, files and activity.
+
+Agents are tracked in `live.agents` from `agent.spawn` (type, description, model), the `agentId` on `tool.call` / `turn.step` / `turn.complete` (current tool, tool count, tokens, end), and reconciled each tick with `$.agent.list()` (statuses, agents spawned without `agent.spawn`, ones the engine dropped). The 1 s ticker keeps running while any agent is active, since background agents outlive the main turn. Plugin-raised `$.tool.call` cannot set `agentId`, so tests drive agents through `$.agent.spawn`, `$.turn.step`/`$.turn.complete` with `agentId`, and a stubbed `agent.list`.
 
 - `.claude-plugin/plugin.json` / `marketplace.json` — manifest and the local marketplace entry.
 - `hooks/hooks.json` → `{ "modules": ["./register.tsx"] }`; `hooks/register.tsx` exports `register: Register` and holds all logic (state atoms `live` / `expanded`, command registration, event handlers, pane rendering).

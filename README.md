@@ -17,7 +17,7 @@ Skills y mods propios para [Claude Code](https://claude.com/claude-code). Este r
 
 | Mod | Para qué sirve |
 |---|---|
-| [`session-info`](mods/session-info) | Comando `/session-info`: panel en vivo con modelo, rama de git, herramientas usadas, tokens, costo, límites del plan, archivos modificados y actividad de la sesión. |
+| [`session-info`](mods/session-info) | Comando `/session-info`: panel en vivo con modelo, rama de git, herramientas usadas, agentes en curso (tipo, tarea, estado, herramienta actual, tokens), tokens, costo, límites del plan, archivos modificados y actividad de la sesión. |
 
 ## Instalación
 

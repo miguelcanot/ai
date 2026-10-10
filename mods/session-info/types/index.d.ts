@@ -3,11 +3,40 @@ export type ActivityStatus = 'run' | 'ok' | 'err' | 'deny'
 export type Activity = {
   id: string
   at: number
-  kind: 'prompt' | 'tool' | 'turn'
+  kind: 'prompt' | 'tool' | 'turn' | 'agent'
   label: string
   detail: string
   status: ActivityStatus
   ms?: number
+  /** The subagent whose loop it happened in; absent on the main loop. */
+  agentId?: string
+}
+
+/** Where an agent's loop stands, as `$.agent.list()` reports it. */
+export type AgentState = 'pending' | 'running' | 'waiting' | 'idle' | 'completed' | 'failed' | 'killed'
+
+/** One subagent or teammate of this session, as the pane tracks it. */
+export type AgentRun = {
+  id: string
+  type: string
+  description: string
+  name?: string
+  model?: string
+  parentId?: string
+  background: boolean
+  isTeammate: boolean
+  status: AgentState
+  startedAt: number
+  endedAt?: number
+  tools: number
+  errors: number
+  tokensIn: number
+  tokensOut: number
+  /** The tool it is running right now (`Grep foo`), if any. */
+  current?: string
+  currentAt?: number
+  /** Seen in `$.agent.list()` at least once: leaving it then means it ended. */
+  listed: boolean
 }
 
 export type ToolUse = { count: number; errors: number; lastAt: number }
@@ -40,6 +69,8 @@ export type Live = {
   errors: number
   files: Record<string, number>
   events: Activity[]
+  /** Subagents and teammates by id, in spawn order. */
+  agents: Record<string, AgentRun>
 }
 
 declare module 'claude-code' {
