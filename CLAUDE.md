@@ -9,9 +9,13 @@ Source for the user's personal Claude Code customizations: **skills** and **mods
 - `skills/<name>/` mirrors `~/.claude/skills/<name>/` (plain copies, not symlinks).
 - `mods/<name>/` mirrors `~/.claude/mods/<name>/`. A mod is registered as a directory-sourced marketplace (`mcanot-mods`) pointing at `~/.claude/mods/<name>`, and Claude Code installs it into `~/.claude/plugins/cache/...` by version.
 
-After editing here, the change must be copied to the matching `~/.claude/...` folder to take effect (and for a mod, bump `version` in `.claude-plugin/plugin.json` so the cached install refreshes). Verify sync with `diff -rq skills/<name> ~/.claude/skills/<name>`.
+After editing here, the change must be copied to the matching `~/.claude/...` folder to take effect. Verify sync with `diff -rq skills/<name> ~/.claude/skills/<name>`.
 
-User-facing text in skills and mods is written in **Spanish**; keep it that way.
+For a mod, copying is not enough: Claude Code runs a cached copy per version (`~/.claude/plugins/cache/mcanot-mods/<name>/<version>`). Bump `version` in `.claude-plugin/plugin.json`, copy, then run `claude plugin marketplace update mcanot-mods` and `claude plugin update <name>@mcanot-mods`, and restart. `claude plugin list` shows the loaded version.
+
+`perf-audit` is installed per project (`<project>/.claude/skills/perf-audit`), not in `~/.claude/skills/`, so there is no global copy to sync.
+
+User-facing text in skills and mods is written in **Spanish**, addressing the reader as *tú* (no voseo); keep it that way.
 
 ## No personal data (this repo will be public)
 

@@ -6,7 +6,7 @@
 # busca también los símbolos característicos de los paquetes más comunes, y
 # marca como "revisar" en vez de "borrar" lo que no puede confirmar.
 #
-# La salida es una lista de candidatos, NO una orden de borrado: confirmá cada
+# La salida es una lista de candidatos, NO una orden de borrado: confirma cada
 # uno antes de sacarlo.
 #
 # Uso:  bash unused_deps.sh [ruta-al-proyecto]

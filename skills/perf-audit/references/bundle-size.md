@@ -10,11 +10,11 @@ python .claude/skills/perf-audit/scripts/asset_inventory.py assets/
 
 El script lista peso + **dimensiones reales**, que es el dato que importa. La pregunta no es "¿cuánto pesa?" sino **"¿a qué tamaño se dibuja?"**. Un ícono de 1024×1024 que se muestra en un avatar de 40 px está 25× sobredimensionado.
 
-Para averiguar el tamaño de dibujado, buscá dónde se usa cada asset y con qué `width`/`height`, o si llena el ancho de pantalla (tope útil: ~1080 px físicos).
+Para averiguar el tamaño de dibujado, busca dónde se usa cada asset y con qué `width`/`height`, o si llena el ancho de pantalla (tope útil: ~1080 px físicos).
 
 Tres acciones, en este orden:
 
-1. **Borrar los que no se referencian.** Grepeá cada nombre de archivo contra `lib/`. Un asset sin referencias es peso puro.
+1. **Borrar los que no se referencian.** Busca con grep cada nombre de archivo contra `lib/`. Un asset sin referencias es peso puro.
 2. **Redimensionar al tamaño de uso** (con holgura para pantallas 2-3×).
 3. **Convertir a WebP.** Flutter lo lee nativamente. Para fotos y arte con degradados, WebP q80-85 baja un orden de magnitud respecto de PNG.
 
@@ -22,7 +22,7 @@ Tres acciones, en este orden:
 python .claude/skills/perf-audit/scripts/optimize_images.py assets/images/banners --max-width 800 --quality 82
 ```
 
-El script reporta **PSNR** contra el original. Por encima de ~35 dB es visualmente indistinguible; por debajo de 30, miralo antes de aceptar. **Copiá los originales a un directorio fuera del repo antes de sobrescribir.**
+El script reporta **PSNR** contra el original. Por encima de ~35 dB es visualmente indistinguible; por debajo de 30, míralo antes de aceptar. **Copia los originales a un directorio fuera del repo antes de sobrescribir.**
 
 Convertir cambia la extensión: acordate de actualizar las referencias en Dart, incluidas las que se arman dinámicamente (`'assets/images/icons/$id.jpg'`) y los comentarios de doc.
 
@@ -38,19 +38,19 @@ Cuantizar a 256 colores con dithering Floyd-Steinberg suele dar 3× de reducció
 
 ### Entradas de build que no deberían empaquetarse
 
-Un PNG de 1024×1024 que solo existe para generar el ícono del launcher no tiene por qué viajar en el bundle. Movelo fuera de la carpeta declarada en `assets:` (ej. `tool/launcher_icon/`) y apuntá ahí la config del generador. Lo que la app muestra debería ser una copia chica aparte.
+Un PNG de 1024×1024 que solo existe para generar el ícono del launcher no tiene por qué viajar en el bundle. Movelo fuera de la carpeta declarada en `assets:` (ej. `tool/launcher_icon/`) y apunta ahí la config del generador. Lo que la app muestra debería ser una copia chica aparte.
 
 ## 2. Dependencias declaradas que nadie usa
 
 ```bash
-bash .claude/skills/perf-audit/scripts/unused_deps.sh
+bash .claude/skills/perf-audit/scripts/unused_deps.sh [ruta-al-proyecto]   # por defecto, el directorio actual
 ```
 
 Grepear solo `import 'package:x'` no alcanza cuando hay re-exports; el script busca también los símbolos característicos de cada paquete.
 
 Pesan distinto según qué arrastren. Las caras son las que traen código nativo o dependencias transitivas grandes (un cliente HTTP con cache trae su gestor de cache y SQLite; un selector de imágenes trae plugins nativos **y permisos en el manifest**, lo cual también afecta la ficha de tienda).
 
-Antes de borrar, confirmá con una búsqueda de símbolos, no solo del nombre del paquete.
+Antes de borrar, confirma con una búsqueda de símbolos, no solo del nombre del paquete.
 
 ## 3. Fuentes descargadas en runtime
 
@@ -69,13 +69,13 @@ python -m fontTools.subset Inter-Regular.ttf \
   --output-file=Inter-Regular.subset.ttf
 ```
 
-Averiguá qué pesos se usan de verdad antes de empaquetar siete:
+Averigua qué pesos se usan de verdad antes de empaquetar siete:
 
 ```bash
 grep -rho "FontWeight.w[0-9]*" lib --include=*.dart | sort | uniq -c
 ```
 
-Para reemplazar el paquete sin tocar 200 call sites, hacé un shim que imite su API (`AppFonts.inter(...)` con la misma firma) y cambiá solo el import y el nombre de la clase.
+Para reemplazar el paquete sin tocar 200 call sites, haz un shim que imite su API (`AppFonts.inter(...)` con la misma firma) y cambia solo el import y el nombre de la clase.
 
 ## 4. Decodificación de imágenes (RAM, no bundle)
 
@@ -112,13 +112,13 @@ release {
 }
 ```
 
-**Las reglas `-keep` no son opcionales.** Todo lo que se resuelve por reflexión o desde código nativo es invisible para R8: compila bien y falla en runtime, que es la forma más cara de fallar. Cubrí como mínimo Firebase, los SDKs de anuncios y de compras (kotlinx.serialization busca sus serializers por nombre de clase), y las librerías que usan Gson.
+**Las reglas `-keep` no son opcionales.** Todo lo que se resuelve por reflexión o desde código nativo es invisible para R8: compila bien y falla en runtime, que es la forma más cara de fallar. Cubre como mínimo Firebase, los SDKs de anuncios y de compras (kotlinx.serialization busca sus serializers por nombre de clase), y las librerías que usan Gson.
 
 **`-dontwarn com.google.android.play.core.**` es obligatorio** aunque la app no use componentes diferidos: el embedding de Flutter los referencia, la librería no está en el classpath, y R8 aborta con "missing classes".
 
-Conservá `SourceFile,LineNumberTable` para que los stack traces de Play Console sigan siendo legibles.
+Conserva `SourceFile,LineNumberTable` para que los stack traces de Play Console sigan siendo legibles.
 
-**R8 exige smoke test en dispositivo**, no alcanza con que compile. Probá login, compras y push — los tres caminos de reflexión más frágiles.
+**R8 exige smoke test en dispositivo**, no alcanza con que compile. Prueba login, compras y push — los tres caminos de reflexión más frágiles.
 
 ## 6. Medir el tamaño **entregado**, no el del artefacto
 
@@ -129,15 +129,15 @@ python .claude/skills/perf-audit/scripts/aab_breakdown.py build/app/outputs/bund
 Un `.aab` de 53 MB puede entregar ~15 MB:
 
 - **`BUNDLE-METADATA/`** (símbolos de debug + mapping de R8) no se descarga nunca. Pueden ser 18 MB.
-- **`base/lib/<abi>/`** trae las tres ABIs; cada dispositivo baja una.
+- **`base/lib/<abi>/`** trae las tres ABIs; cada dispositivo baja una. El script cuenta `arm64-v8a` por defecto; usa `--abi armeabi-v7a` (u otra) para estimar la descarga de otro tipo de dispositivo.
 
-Reportar el tamaño del `.aab` como "lo que pesa la app" exagera 3×. Para un número cercano al real, construí un APK de una sola ABI:
+Reportar el tamaño del `.aab` como "lo que pesa la app" exagera 3×. Para un número cercano al real, construye un APK de una sola ABI:
 
 ```bash
 flutter build apk --release --target-platform android-arm64
 ```
 
-Verificá también qué quedó adentro, que es la forma de detectar que un reemplazo de assets no se aplicó:
+Verifica también qué quedó adentro, que es la forma de detectar que un reemplazo de assets no se aplicó:
 
 ```bash
 python .claude/skills/perf-audit/scripts/aab_breakdown.py <apk-o-aab> --assets
@@ -145,7 +145,7 @@ python .claude/skills/perf-audit/scripts/aab_breakdown.py <apk-o-aab> --assets
 
 ## 7. Trampas al reemplazar assets
 
-**Aspect ratio.** Si el reemplazo no tiene la misma proporción que el anterior, revisá todo lo que la asumía. Un `BoxFit.cover` dentro de una caja cuadrada es inofensivo con un asset cuadrado y recorta con uno que no lo es. Lo mismo con `object-fit: cover` en CSS, y con cualquier `object-position` que alguien haya afinado a mano.
+**Aspect ratio.** Si el reemplazo no tiene la misma proporción que el anterior, revisa todo lo que la asumía. Un `BoxFit.cover` dentro de una caja cuadrada es inofensivo con un asset cuadrado y recorta con uno que no lo es. Lo mismo con `object-fit: cover` en CSS, y con cualquier `object-position` que alguien haya afinado a mano.
 
 **Íconos de launcher.** Dos requisitos que se olvidan:
 

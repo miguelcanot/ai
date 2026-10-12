@@ -2,6 +2,8 @@
 
 Checklist para un backend Express + Mongoose. El orden es por retorno: los primeros suelen ganar más que los últimos.
 
+Los comandos de ejemplo asumen el backend en `server/src` (con `models/` y `routes/` dentro); ajústalos a la estructura real del proyecto antes de sacar conclusiones de un resultado vacío.
+
 ## 1. Compresión HTTP
 
 Lo primero que hay que mirar, porque es una línea y afecta cada respuesta.
@@ -19,7 +21,7 @@ app.use(compression());   // antes de registerRoutes()
 
 No afecta imágenes: el filtro por defecto de `compression` ya excluye `image/*`, así que un proxy de archivos (`GET /storage/...`) sigue pasando sin tocar.
 
-**Cómo verificarlo:** `curl` con y sin `--compressed` sobre una respuesta grande y comparar `size_download`. Buscá el header `Content-Encoding` (puede ser `br`, no solo `gzip`) y `Vary: Accept-Encoding`.
+**Cómo verificarlo:** `curl` con y sin `--compressed` sobre una respuesta grande y comparar `size_download`. Busca el header `Content-Encoding` (puede ser `br`, no solo `gzip`) y `Vary: Accept-Encoding`.
 
 ## 2. N+1 en Mongo
 
@@ -43,7 +45,7 @@ const all = await Product.find({ _id: { $in: [...allIds] } }).lean();
 const byId = new Map(all.map(p => [String(p._id), p]));
 ```
 
-Mirá también los cron jobs, no solo las rutas: ahí el N+1 corre sobre *todos* los grupos/usuarios en vez de sobre una.
+Mira también los cron jobs, no solo las rutas: ahí el N+1 corre sobre *todos* los grupos/usuarios en vez de sobre una.
 
 ## 3. Trabajo duplicado dentro de una request
 
@@ -51,7 +53,7 @@ Dos llamadas a la misma función costosa en el mismo handler, normalmente porque
 
 Ejemplo real: `GET /rankings/:leagueId` llamaba `calcPointsAgainst(leagueId)` para armar la respuesta, y después `sortTeamsByFormat(...)` la volvía a llamar internamente. La misma consulta a `matchups` corría dos veces por request. Se arregla pasando el valor ya calculado como parámetro opcional.
 
-Para detectarlo: seguí las funciones que el handler llama, no solo lo que se ve en el handler.
+Para detectarlo: sigue las funciones que el handler llama, no solo lo que se ve en el handler.
 
 ## 4. `.lean()` en rutas de lectura pura
 
@@ -70,7 +72,7 @@ Señal de alarma adicional: un `.map(p => p.toObject())` después de la consulta
 
 Rutas que devuelven el documento entero cuando el cliente usa tres campos.
 
-Mirá especialmente las **listas**: un `.select()` faltante en una ruta que devuelve 20 documentos cuesta 20 veces más que en una que devuelve uno. Contrastá con lo que el cliente realmente consume — si el parser del cliente reemplaza campos por defaults, esos campos son puro peso.
+Mira especialmente las **listas**: un `.select()` faltante en una ruta que devuelve 20 documentos cuesta 20 veces más que en una que devuelve uno. Contrasta con lo que el cliente realmente consume — si el parser del cliente reemplaza campos por defaults, esos campos son puro peso.
 
 Un buen indicio: en el mismo archivo, una ruta tiene `.select()` y su hermana no.
 
@@ -78,7 +80,7 @@ Un buen indicio: en el mismo archivo, una ruta tiene `.select()` y su hermana no
 
 Un índice sirve solo si su prefijo coincide con el filtro **y** el sort.
 
-Extraé las consultas reales y contrastalas con los índices declarados:
+Extrae las consultas reales y contrástalas con los índices declarados:
 
 ```bash
 grep -rn "\.find(\|\.findOne(" -A 3 --include=*.ts server/src/routes/
@@ -94,7 +96,7 @@ Casos que aparecen seguido:
 | `find({date: {...}})` existiendo `{status, date}` | `{date: 1}` — `date` no es prefijo del compuesto |
 | `$or: [{"a.id"}, {"b.id"}]` | un índice **por cada rama** del `$or` |
 
-**Antes de cambiar declaraciones, mirá la base real:**
+**Antes de cambiar declaraciones, mira la base real:**
 
 ```bash
 docker compose exec -T mongo mongosh <db> --quiet --eval \
@@ -129,7 +131,7 @@ El TTL evita tener que reiniciar el server cuando el valor cambie de verdad.
 
 ## 8. El lado del cliente también genera N+1
 
-Esto se escapa si solo mirás el backend. Dos patrones:
+Esto se escapa si solo miras el backend. Dos patrones:
 
 **Varios providers pegando al mismo endpoint.** Caso típico: `usernameById` y `avatarById` son providers distintos que llaman ambos a `GET /users/:id`: una lista de 10 miembros cuesta **20 requests** para pintarse. Arreglo en dos niveles:
 
@@ -164,6 +166,6 @@ static const _pollConfirmed = Duration(seconds: 20);
 
 ## 9. Logging que escribe por request
 
-Un middleware de access log inserta un documento por request. Es aceptable, pero tenelo en cuenta al medir, y verificá que tenga índice TTL para que se auto-purgue.
+Un middleware de access log inserta un documento por request. Es aceptable, pero tenlo en cuenta al medir, y verifica que tenga índice TTL para que se auto-purgue.
 
 Es, además, la mejor herramienta de diagnóstico que vas a tener: permite responder "¿llegó este webhook?" con un hecho en vez de una suposición. Ojo con su ventana de retención — si el log arrancó hace 10 minutos, la ausencia de registros **no** prueba nada sobre ayer. Decilo explícitamente en vez de concluir de más.

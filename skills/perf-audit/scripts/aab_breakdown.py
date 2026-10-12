@@ -75,7 +75,7 @@ def main():
     print(f"  entregado (~{args.abi})   {delivered / 1048576:7.2f} MB")
 
     if metadata or other_abis:
-        print("\n  Para un número medido en vez de estimado, construí una sola ABI:")
+        print("\n  Para un número medido en vez de estimado, construye una sola ABI:")
         print("    flutter build apk --release --target-platform android-arm64")
 
     if args.assets:

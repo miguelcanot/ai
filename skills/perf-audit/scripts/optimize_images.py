@@ -143,12 +143,12 @@ def main():
     print(f"\nTOTAL: {before_total / 1048576:.1f} MB -> {after_total / 1048576:.1f} MB "
           f"({100 * (1 - after_total / before_total):.0f}% menos)")
     print(f"PSNR más bajo: {worst[0][0]:.1f} dB ({os.path.basename(worst[0][1])})")
-    print("\n>35 dB visualmente indistinguible · <30 dB miralo antes de aceptar")
+    print("\n>35 dB visualmente indistinguible · <30 dB míralo antes de aceptar")
 
     if args.dry_run:
         print("\n(dry-run: no se escribió nada)")
     elif not args.quantize:
-        print("\nLa extensión cambió a .webp — actualizá las referencias en el código,")
+        print("\nLa extensión cambió a .webp — actualiza las referencias en el código,")
         print("incluidas las rutas que se arman dinámicamente ('.../$id.jpg').")
     return 0
 

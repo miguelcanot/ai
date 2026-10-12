@@ -42,7 +42,7 @@ grep -rnE "expires|expireAfterSeconds|TTL" --include=*.{ts,js} . | grep -i -E "l
 Todo lo que guarde email, nombre o id de usuario fuera del modelo principal:
 
 ```bash
-# Modelos que referencian al usuario o guardan email
+# Modelos que referencian al usuario o guardan email (ajusta las rutas a donde estén los modelos del proyecto)
 grep -rlnE "ref: ?['\"]User|userId|email" server/src/models src/models prisma 2>/dev/null
 ```
 

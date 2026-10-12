@@ -141,7 +141,7 @@ def main():
         print(f"  {size / 1024:7.0f}KB  {d:>13}  {path}")
 
     print("\nPregunta clave para cada una: ¿a qué tamaño se dibuja en pantalla?")
-    print("Buscá el asset en lib/ y mirá su width/height (o si llena el ancho).")
+    print("Busca el asset en lib/ y mira su width/height (o si llena el ancho).")
     return 0
 
 
