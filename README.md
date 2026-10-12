@@ -92,6 +92,20 @@ Claude Code usa una copia en caché por versión (`~/.claude/plugins/cache/mcano
 
 En el panel, pulsar una herramienta despliega para qué se usó (archivos, comandos, skills); pulsarla otra vez la pliega. Si la terminal es demasiado estrecha el panel no se coloca y el resumen lo avisa: ensancha la ventana y vuelve a ejecutar el comando.
 
+#### Ejemplo
+
+Así se ve el panel a mitad de una tarea, con la herramienta `Bash` desplegada (datos inventados):
+
+![Panel de /session-info: modelo y rama, herramienta en curso, agentes, herramientas con detalle, tokens, uso del plan, archivos modificados y actividad](mods/session-info/docs/panel.svg)
+
+Mientras hay trabajo en curso, la barra de estado de Claude Code muestra un resumen de una línea:
+
+```text
+● Bash · 31.7k tok salida · $1.84 · 5h 34% sem 74% · 58 herr. · 1 ag.
+```
+
+Iconos: `●` en curso, `✓` terminado, `✗` error, `⊘` denegado o detenido, `◐` esperando, `▶` prompt. Las barras de contexto y de plan cambian de color (verde → amarillo → rojo) al acercarse al límite.
+
 ## Desarrollo del mod
 
 Claude Code genera las declaraciones de tipos en `.claude-plugin/types/` al cargar el mod (no se versionan). Con ellas presentes:
