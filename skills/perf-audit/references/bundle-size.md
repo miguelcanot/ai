@@ -5,7 +5,7 @@ Checklist para una app Flutter. Ordenado por retorno: en la práctica los assets
 ## 1. Assets (casi siempre el hallazgo más grande)
 
 ```bash
-python .claude/skills/perf-audit/scripts/asset_inventory.py assets/
+python <dir-de-la-skill>/scripts/asset_inventory.py assets/
 ```
 
 El script lista peso + **dimensiones reales**, que es el dato que importa. La pregunta no es "¿cuánto pesa?" sino **"¿a qué tamaño se dibuja?"**. Un ícono de 1024×1024 que se muestra en un avatar de 40 px está 25× sobredimensionado.
@@ -19,7 +19,7 @@ Tres acciones, en este orden:
 3. **Convertir a WebP.** Flutter lo lee nativamente. Para fotos y arte con degradados, WebP q80-85 baja un orden de magnitud respecto de PNG.
 
 ```bash
-python .claude/skills/perf-audit/scripts/optimize_images.py assets/images/banners --max-width 800 --quality 82
+python <dir-de-la-skill>/scripts/optimize_images.py assets/images/banners --max-width 800 --quality 82
 ```
 
 El script reporta **PSNR** contra el original. Por encima de ~35 dB es visualmente indistinguible; por debajo de 30, míralo antes de aceptar. **Copia los originales a un directorio fuera del repo antes de sobrescribir.**
@@ -31,7 +31,7 @@ Convertir cambia la extensión: acordate de actualizar las referencias en Dart, 
 Si algo alimenta a un generador (ej. `flutter_launcher_icons`) o necesita transparencia en un contexto que no acepta WebP, dejalo en PNG pero cuantizalo:
 
 ```bash
-python .claude/skills/perf-audit/scripts/optimize_images.py landing/assets --quantize --max-width 840
+python <dir-de-la-skill>/scripts/optimize_images.py landing/assets --quantize --max-width 840
 ```
 
 Cuantizar a 256 colores con dithering Floyd-Steinberg suele dar 3× de reducción con PSNR > 37 dB.
@@ -43,7 +43,7 @@ Un PNG de 1024×1024 que solo existe para generar el ícono del launcher no tien
 ## 2. Dependencias declaradas que nadie usa
 
 ```bash
-bash .claude/skills/perf-audit/scripts/unused_deps.sh [ruta-al-proyecto]   # por defecto, el directorio actual
+bash <dir-de-la-skill>/scripts/unused_deps.sh [ruta-al-proyecto]   # por defecto, el directorio actual
 ```
 
 Grepear solo `import 'package:x'` no alcanza cuando hay re-exports; el script busca también los símbolos característicos de cada paquete.
@@ -123,7 +123,7 @@ Conserva `SourceFile,LineNumberTable` para que los stack traces de Play Console 
 ## 6. Medir el tamaño **entregado**, no el del artefacto
 
 ```bash
-python .claude/skills/perf-audit/scripts/aab_breakdown.py build/app/outputs/bundle/release/app-release.aab
+python <dir-de-la-skill>/scripts/aab_breakdown.py build/app/outputs/bundle/release/app-release.aab
 ```
 
 Un `.aab` de 53 MB puede entregar ~15 MB:
@@ -140,7 +140,7 @@ flutter build apk --release --target-platform android-arm64
 Verifica también qué quedó adentro, que es la forma de detectar que un reemplazo de assets no se aplicó:
 
 ```bash
-python .claude/skills/perf-audit/scripts/aab_breakdown.py <apk-o-aab> --assets
+python <dir-de-la-skill>/scripts/aab_breakdown.py <apk-o-aab> --assets
 ```
 
 ## 7. Trampas al reemplazar assets

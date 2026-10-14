@@ -25,10 +25,10 @@ Corre los scripts antes de leer código a mano; los números dicen dónde mirar:
 
 ```bash
 # SDKs y permisos → qué datos recoge cada uno y qué obligaciones dispara
-python ~/.claude/skills/mobile-legal-audit/scripts/sdk_inventory.py <raíz-del-proyecto>
+python "${CLAUDE_SKILL_DIR}/scripts/sdk_inventory.py" <raíz-del-proyecto>
 
 # Imágenes y medios cargados desde dominios de terceros (fotos, logos, CDNs)
-python ~/.claude/skills/mobile-legal-audit/scripts/external_media.py <raíz-del-proyecto>
+python "${CLAUDE_SKILL_DIR}/scripts/external_media.py" <raíz-del-proyecto>
 ```
 
 Después completa a mano lo que los scripts no ven. La guía detallada de qué buscar y cómo está en **`references/data-inventory.md`** — léela siempre. En resumen, hay que llegar a una tabla con:
