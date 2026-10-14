@@ -1,0 +1,152 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="813" height="1020" viewBox="0 0 813 1020" role="img" aria-label="Sesión — /session-info detalle">
+<style>text{font-family:"Cascadia Mono","SF Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace;font-size:14px;white-space:pre}</style>
+<rect width="813" height="1020" rx="10" fill="#1E1E1E"/>
+<rect width="813" height="34" rx="10" fill="#2D2D2D"/><rect y="24" width="813" height="10" fill="#2D2D2D"/>
+<circle cx="20" cy="17" r="6" fill="#FF5F57"/><circle cx="40" cy="17" r="6" fill="#FEBC2E"/><circle cx="60" cy="17" r="6" fill="#28C840"/>
+<text x="406.5" y="22" text-anchor="middle" fill="#9A9A9A" style="font-size:12px">Sesión — /session-info detalle</text>
+<rect x="624.8" y="46" width="84.0" height="16" rx="4" fill="none" stroke="#6B6B6B"/>
+<rect x="717.2" y="46" width="67.2" height="16" rx="4" fill="none" stroke="#6B6B6B"/>
+<text x="28.4" y="59" fill="#D77757" font-weight="bold" textLength="126.0" lengthAdjust="spacingAndGlyphs">claude-opus-5-5</text>
+<text x="154.4" y="59" fill="#8A8A8A" textLength="25.2" lengthAdjust="spacingAndGlyphs"> · </text>
+<text x="179.6" y="59" fill="#B1B9F9" textLength="50.4" lengthAdjust="spacingAndGlyphs">⎇ main</text>
+<text x="230.0" y="59" fill="#FFC107" textLength="100.8" lengthAdjust="spacingAndGlyphs"> (3 cambios)</text>
+<text x="330.8" y="59" fill="#8A8A8A" textLength="193.2" lengthAdjust="spacingAndGlyphs"> · ⏱ 11m 16s · 2 turnos</text>
+<text x="624.8" y="59" fill="#E6E6E6" textLength="84.0" lengthAdjust="spacingAndGlyphs"> Compacta </text>
+<text x="717.2" y="59" fill="#E6E6E6" textLength="67.2" lengthAdjust="spacingAndGlyphs"> Cerrar </text>
+<text x="28.4" y="99" fill="#D77757" textLength="92.4" lengthAdjust="spacingAndGlyphs">● pensando…</text>
+<text x="28.4" y="139" fill="#E6E6E6" font-weight="bold" textLength="50.4" lengthAdjust="spacingAndGlyphs">Tarea </text>
+<text x="78.8" y="139" fill="#8A8A8A" font-weight="bold" textLength="92.4" lengthAdjust="spacingAndGlyphs">hace 7m 26s</text>
+<text x="45.2" y="159" fill="#B1B9F9" textLength="739.2" lengthAdjust="spacingAndGlyphs">Agrega paginación al listado de pedidos: 20 por página, con botones anterior/siguiente y</text>
+<text x="45.2" y="179" fill="#B1B9F9" textLength="159.6" lengthAdjust="spacingAndGlyphs">pruebas para la API</text>
+<text x="28.4" y="219" fill="#E6E6E6" font-weight="bold" textLength="67.2" lengthAdjust="spacingAndGlyphs">Agentes </text>
+<text x="95.6" y="219" fill="#FFC107" font-weight="bold" textLength="75.6" lengthAdjust="spacingAndGlyphs">1 activos</text>
+<text x="171.2" y="219" fill="#8A8A8A" font-weight="bold" textLength="42.0" lengthAdjust="spacingAndGlyphs"> de 1</text>
+<text x="45.2" y="239" fill="#FFC107" textLength="16.8" lengthAdjust="spacingAndGlyphs">● </text>
+<text x="62.0" y="239" fill="#E6E6E6" font-weight="bold" textLength="67.2" lengthAdjust="spacingAndGlyphs">Explore </text>
+<text x="129.2" y="239" fill="#E6E6E6" textLength="260.4" lengthAdjust="spacingAndGlyphs">buscar los endpoints de pedidos</text>
+<text x="389.6" y="239" fill="#8A8A8A" textLength="252.0" lengthAdjust="spacingAndGlyphs"> · corriendo 11m 16s · 0 herr.</text>
+<text x="28.4" y="279" fill="#E6E6E6" font-weight="bold" textLength="109.2" lengthAdjust="spacingAndGlyphs">Herramientas </text>
+<text x="137.6" y="279" fill="#8A8A8A" font-weight="bold" textLength="92.4" lengthAdjust="spacingAndGlyphs">11 llamadas</text>
+<text x="28.4" y="299" fill="#6B6B6B" textLength="16.8" lengthAdjust="spacingAndGlyphs">▸ </text>
+<text x="45.2" y="299" fill="#E6E6E6" textLength="42.0" lengthAdjust="spacingAndGlyphs">Edit </text>
+<text x="87.2" y="299" fill="#D77757" textLength="252.0" lengthAdjust="spacingAndGlyphs">██████████████████████████████</text>
+<text x="339.2" y="299" fill="#8A8A8A" textLength="134.4" lengthAdjust="spacingAndGlyphs"> 4 · 3 distintos</text>
+<text x="28.4" y="319" fill="#6B6B6B" textLength="16.8" lengthAdjust="spacingAndGlyphs">▸ </text>
+<text x="45.2" y="319" fill="#E6E6E6" textLength="42.0" lengthAdjust="spacingAndGlyphs">Read </text>
+<text x="87.2" y="319" fill="#D77757" textLength="193.2" lengthAdjust="spacingAndGlyphs">███████████████████████</text>
+<text x="280.4" y="319" fill="#8A8A8A" textLength="134.4" lengthAdjust="spacingAndGlyphs"> 3 · 3 distintos</text>
+<text x="28.4" y="339" fill="#6B6B6B" textLength="16.8" lengthAdjust="spacingAndGlyphs">▸ </text>
+<text x="45.2" y="339" fill="#E6E6E6" textLength="42.0" lengthAdjust="spacingAndGlyphs">Bash </text>
+<text x="87.2" y="339" fill="#D77757" textLength="193.2" lengthAdjust="spacingAndGlyphs">███████████████████████</text>
+<text x="280.4" y="339" fill="#8A8A8A" textLength="134.4" lengthAdjust="spacingAndGlyphs"> 3 · 2 distintos</text>
+<text x="28.4" y="359" fill="#6B6B6B" textLength="16.8" lengthAdjust="spacingAndGlyphs">▸ </text>
+<text x="45.2" y="359" fill="#E6E6E6" textLength="42.0" lengthAdjust="spacingAndGlyphs">Grep </text>
+<text x="87.2" y="359" fill="#D77757" textLength="67.2" lengthAdjust="spacingAndGlyphs">████████</text>
+<text x="154.4" y="359" fill="#8A8A8A" textLength="16.8" lengthAdjust="spacingAndGlyphs"> 1</text>
+<text x="28.4" y="379" fill="#8A8A8A" textLength="268.8" lengthAdjust="spacingAndGlyphs">  clic o 1-4 para ver el detalle</text>
+<text x="28.4" y="419" fill="#E6E6E6" font-weight="bold" textLength="58.8" lengthAdjust="spacingAndGlyphs">Tokens </text>
+<text x="87.2" y="419" fill="#8A8A8A" textLength="176.4" lengthAdjust="spacingAndGlyphs">6 respuestas · costo </text>
+<text x="263.6" y="419" fill="#4EBA65" font-weight="bold" textLength="42.0" lengthAdjust="spacingAndGlyphs">$1.84</text>
+<text x="45.2" y="439" fill="#8A8A8A" textLength="67.2" lengthAdjust="spacingAndGlyphs">entrada </text>
+<text x="112.4" y="439" fill="#E6E6E6" textLength="50.4" lengthAdjust="spacingAndGlyphs">110.4k</text>
+<text x="162.8" y="439" fill="#8A8A8A" textLength="84.0" lengthAdjust="spacingAndGlyphs"> · salida </text>
+<text x="246.8" y="439" fill="#D77757" textLength="50.4" lengthAdjust="spacingAndGlyphs">190.2k</text>
+<text x="297.2" y="439" fill="#8A8A8A" textLength="126.0" lengthAdjust="spacingAndGlyphs"> · caché leída </text>
+<text x="423.2" y="439" fill="#E6E6E6" textLength="33.6" lengthAdjust="spacingAndGlyphs">3.7M</text>
+<text x="456.8" y="439" fill="#8A8A8A" textLength="92.4" lengthAdjust="spacingAndGlyphs"> · escrita </text>
+<text x="549.2" y="439" fill="#E6E6E6" textLength="50.4" lengthAdjust="spacingAndGlyphs">289.2k</text>
+<text x="45.2" y="459" fill="#8A8A8A" textLength="75.6" lengthAdjust="spacingAndGlyphs">contexto </text>
+<text x="120.8" y="459" fill="#4EBA65" textLength="109.2" lengthAdjust="spacingAndGlyphs">█████████████</text>
+<text x="230.0" y="459" fill="#8A8A8A" textLength="302.4" lengthAdjust="spacingAndGlyphs">░░░░░░░░░░░░░░░░░ 42% · 84.0k/200.0k</text>
+<text x="28.4" y="499" fill="#E6E6E6" font-weight="bold" textLength="100.8" lengthAdjust="spacingAndGlyphs">Uso del plan</text>
+<text x="28.4" y="519" fill="#E6E6E6" textLength="151.2" lengthAdjust="spacingAndGlyphs">  Sesión (5 h)    </text>
+<text x="179.6" y="519" fill="#4EBA65" textLength="67.2" lengthAdjust="spacingAndGlyphs">████████</text>
+<text x="246.8" y="519" fill="#8A8A8A" textLength="134.4" lengthAdjust="spacingAndGlyphs">░░░░░░░░░░░░░░░░</text>
+<text x="381.2" y="519" fill="#E6E6E6" textLength="33.6" lengthAdjust="spacingAndGlyphs"> 34%</text>
+<text x="414.8" y="519" fill="#8A8A8A" textLength="75.6" lengthAdjust="spacingAndGlyphs"> usado · </text>
+<text x="490.4" y="519" fill="#4EBA65" font-weight="bold" textLength="25.2" lengthAdjust="spacingAndGlyphs">66%</text>
+<text x="515.6" y="519" fill="#8A8A8A" textLength="226.8" lengthAdjust="spacingAndGlyphs"> libre · reinicia en 4h 19m</text>
+<text x="28.4" y="539" fill="#E6E6E6" textLength="151.2" lengthAdjust="spacingAndGlyphs">  Semana (7 d)    </text>
+<text x="179.6" y="539" fill="#FFC107" textLength="151.2" lengthAdjust="spacingAndGlyphs">██████████████████</text>
+<text x="330.8" y="539" fill="#8A8A8A" textLength="50.4" lengthAdjust="spacingAndGlyphs">░░░░░░</text>
+<text x="381.2" y="539" fill="#E6E6E6" textLength="33.6" lengthAdjust="spacingAndGlyphs"> 74%</text>
+<text x="414.8" y="539" fill="#8A8A8A" textLength="75.6" lengthAdjust="spacingAndGlyphs"> usado · </text>
+<text x="490.4" y="539" fill="#FFC107" font-weight="bold" textLength="25.2" lengthAdjust="spacingAndGlyphs">26%</text>
+<text x="515.6" y="539" fill="#8A8A8A" textLength="218.4" lengthAdjust="spacingAndGlyphs"> libre · reinicia en 2d 7h</text>
+<text x="28.4" y="579" fill="#E6E6E6" font-weight="bold" textLength="176.4" lengthAdjust="spacingAndGlyphs">Archivos modificados </text>
+<text x="204.8" y="579" fill="#8A8A8A" font-weight="bold" textLength="8.4" lengthAdjust="spacingAndGlyphs">3</text>
+<text x="45.2" y="599" fill="#4EBA65" textLength="8.4" lengthAdjust="spacingAndGlyphs">✎</text>
+<text x="53.6" y="599" fill="#E6E6E6" textLength="168.0" lengthAdjust="spacingAndGlyphs"> src/orders/list.ts </text>
+<text x="221.6" y="599" fill="#8A8A8A" textLength="16.8" lengthAdjust="spacingAndGlyphs">×2</text>
+<text x="45.2" y="619" fill="#4EBA65" textLength="8.4" lengthAdjust="spacingAndGlyphs">✎</text>
+<text x="53.6" y="619" fill="#E6E6E6" textLength="210.0" lengthAdjust="spacingAndGlyphs"> src/orders/list.test.ts </text>
+<text x="263.6" y="619" fill="#8A8A8A" textLength="16.8" lengthAdjust="spacingAndGlyphs">×1</text>
+<text x="45.2" y="639" fill="#4EBA65" textLength="8.4" lengthAdjust="spacingAndGlyphs">✎</text>
+<text x="53.6" y="639" fill="#E6E6E6" textLength="159.6" lengthAdjust="spacingAndGlyphs"> src/api/client.ts </text>
+<text x="213.2" y="639" fill="#8A8A8A" textLength="16.8" lengthAdjust="spacingAndGlyphs">×1</text>
+<text x="28.4" y="679" fill="#E6E6E6" font-weight="bold" textLength="75.6" lengthAdjust="spacingAndGlyphs">Actividad</text>
+<text x="28.4" y="699" fill="#8A8A8A" textLength="75.6" lengthAdjust="spacingAndGlyphs">11:20:00 </text>
+<text x="104.0" y="699" fill="#B1B9F9" textLength="16.8" lengthAdjust="spacingAndGlyphs">▶ </text>
+<text x="120.8" y="699" fill="#E6E6E6" font-weight="bold" textLength="58.8" lengthAdjust="spacingAndGlyphs">prompt </text>
+<text x="179.6" y="699" fill="#8A8A8A" textLength="302.4" lengthAdjust="spacingAndGlyphs">Explícame cómo se cargan los pedidos</text>
+<text x="28.4" y="719" fill="#8A8A8A" textLength="75.6" lengthAdjust="spacingAndGlyphs">11:21:35 </text>
+<text x="104.0" y="719" fill="#4EBA65" textLength="16.8" lengthAdjust="spacingAndGlyphs">✓ </text>
+<text x="120.8" y="719" fill="#E6E6E6" font-weight="bold" textLength="50.4" lengthAdjust="spacingAndGlyphs">turno </text>
+<text x="171.2" y="719" fill="#8A8A8A" textLength="218.4" lengthAdjust="spacingAndGlyphs">fin · ↑4.1k tokens · 1m35s</text>
+<text x="28.4" y="739" fill="#8A8A8A" textLength="75.6" lengthAdjust="spacingAndGlyphs">11:21:35 </text>
+<text x="104.0" y="739" fill="#B1B9F9" textLength="16.8" lengthAdjust="spacingAndGlyphs">▶ </text>
+<text x="120.8" y="739" fill="#E6E6E6" font-weight="bold" textLength="58.8" lengthAdjust="spacingAndGlyphs">prompt </text>
+<text x="179.6" y="739" fill="#8A8A8A" textLength="327.6" lengthAdjust="spacingAndGlyphs">Revisa si la API ya acepta page y limit</text>
+<text x="28.4" y="759" fill="#8A8A8A" textLength="75.6" lengthAdjust="spacingAndGlyphs">11:23:10 </text>
+<text x="104.0" y="759" fill="#4EBA65" textLength="16.8" lengthAdjust="spacingAndGlyphs">✓ </text>
+<text x="120.8" y="759" fill="#E6E6E6" font-weight="bold" textLength="50.4" lengthAdjust="spacingAndGlyphs">turno </text>
+<text x="171.2" y="759" fill="#8A8A8A" textLength="218.4" lengthAdjust="spacingAndGlyphs">fin · ↑4.1k tokens · 1m35s</text>
+<text x="28.4" y="779" fill="#8A8A8A" textLength="75.6" lengthAdjust="spacingAndGlyphs">11:23:50 </text>
+<text x="104.0" y="779" fill="#B1B9F9" textLength="16.8" lengthAdjust="spacingAndGlyphs">▶ </text>
+<text x="120.8" y="779" fill="#E6E6E6" font-weight="bold" textLength="58.8" lengthAdjust="spacingAndGlyphs">prompt </text>
+<text x="179.6" y="779" fill="#8A8A8A" textLength="504.0" lengthAdjust="spacingAndGlyphs">Agrega paginación al listado de pedidos: 20 por página, con…</text>
+<text x="28.4" y="799" fill="#8A8A8A" textLength="75.6" lengthAdjust="spacingAndGlyphs">11:24:27 </text>
+<text x="104.0" y="799" fill="#4EBA65" textLength="16.8" lengthAdjust="spacingAndGlyphs">✓ </text>
+<text x="120.8" y="799" fill="#E6E6E6" textLength="42.0" lengthAdjust="spacingAndGlyphs">Read </text>
+<text x="162.8" y="799" fill="#8A8A8A" textLength="126.0" lengthAdjust="spacingAndGlyphs">list.ts · 340ms</text>
+<text x="28.4" y="819" fill="#8A8A8A" textLength="75.6" lengthAdjust="spacingAndGlyphs">11:25:04 </text>
+<text x="104.0" y="819" fill="#4EBA65" textLength="16.8" lengthAdjust="spacingAndGlyphs">✓ </text>
+<text x="120.8" y="819" fill="#E6E6E6" textLength="42.0" lengthAdjust="spacingAndGlyphs">Grep </text>
+<text x="162.8" y="819" fill="#8A8A8A" textLength="109.2" lengthAdjust="spacingAndGlyphs">orders · 2.8s</text>
+<text x="28.4" y="839" fill="#8A8A8A" textLength="75.6" lengthAdjust="spacingAndGlyphs">11:25:44 </text>
+<text x="104.0" y="839" fill="#4EBA65" textLength="16.8" lengthAdjust="spacingAndGlyphs">✓ </text>
+<text x="120.8" y="839" fill="#E6E6E6" textLength="42.0" lengthAdjust="spacingAndGlyphs">Read </text>
+<text x="162.8" y="839" fill="#8A8A8A" textLength="142.8" lengthAdjust="spacingAndGlyphs">client.ts · 610ms</text>
+<text x="28.4" y="859" fill="#8A8A8A" textLength="75.6" lengthAdjust="spacingAndGlyphs">11:26:21 </text>
+<text x="104.0" y="859" fill="#4EBA65" textLength="16.8" lengthAdjust="spacingAndGlyphs">✓ </text>
+<text x="120.8" y="859" fill="#E6E6E6" textLength="42.0" lengthAdjust="spacingAndGlyphs">Edit </text>
+<text x="162.8" y="859" fill="#8A8A8A" textLength="117.6" lengthAdjust="spacingAndGlyphs">list.ts · 8.4s</text>
+<text x="28.4" y="879" fill="#8A8A8A" textLength="75.6" lengthAdjust="spacingAndGlyphs">11:27:07 </text>
+<text x="104.0" y="879" fill="#4EBA65" textLength="16.8" lengthAdjust="spacingAndGlyphs">✓ </text>
+<text x="120.8" y="879" fill="#E6E6E6" textLength="42.0" lengthAdjust="spacingAndGlyphs">Bash </text>
+<text x="162.8" y="879" fill="#8A8A8A" textLength="126.0" lengthAdjust="spacingAndGlyphs">npm test · 1.2s</text>
+<text x="28.4" y="899" fill="#8A8A8A" textLength="75.6" lengthAdjust="spacingAndGlyphs">11:27:45 </text>
+<text x="104.0" y="899" fill="#4EBA65" textLength="16.8" lengthAdjust="spacingAndGlyphs">✓ </text>
+<text x="120.8" y="899" fill="#E6E6E6" textLength="42.0" lengthAdjust="spacingAndGlyphs">Edit </text>
+<text x="162.8" y="899" fill="#8A8A8A" textLength="168.0" lengthAdjust="spacingAndGlyphs">list.test.ts · 340ms</text>
+<text x="28.4" y="919" fill="#8A8A8A" textLength="75.6" lengthAdjust="spacingAndGlyphs">11:28:22 </text>
+<text x="104.0" y="919" fill="#4EBA65" textLength="16.8" lengthAdjust="spacingAndGlyphs">✓ </text>
+<text x="120.8" y="919" fill="#E6E6E6" textLength="42.0" lengthAdjust="spacingAndGlyphs">Bash </text>
+<text x="162.8" y="919" fill="#8A8A8A" textLength="159.6" lengthAdjust="spacingAndGlyphs">npm run lint · 2.8s</text>
+<text x="28.4" y="939" fill="#8A8A8A" textLength="75.6" lengthAdjust="spacingAndGlyphs">11:29:02 </text>
+<text x="104.0" y="939" fill="#4EBA65" textLength="16.8" lengthAdjust="spacingAndGlyphs">✓ </text>
+<text x="120.8" y="939" fill="#E6E6E6" textLength="42.0" lengthAdjust="spacingAndGlyphs">Edit </text>
+<text x="162.8" y="939" fill="#8A8A8A" textLength="126.0" lengthAdjust="spacingAndGlyphs">list.ts · 610ms</text>
+<text x="28.4" y="959" fill="#8A8A8A" textLength="75.6" lengthAdjust="spacingAndGlyphs">11:29:40 </text>
+<text x="104.0" y="959" fill="#4EBA65" textLength="16.8" lengthAdjust="spacingAndGlyphs">✓ </text>
+<text x="120.8" y="959" fill="#E6E6E6" textLength="42.0" lengthAdjust="spacingAndGlyphs">Read </text>
+<text x="162.8" y="959" fill="#8A8A8A" textLength="134.4" lengthAdjust="spacingAndGlyphs">Pager.tsx · 8.4s</text>
+<text x="28.4" y="979" fill="#8A8A8A" textLength="75.6" lengthAdjust="spacingAndGlyphs">11:30:25 </text>
+<text x="104.0" y="979" fill="#4EBA65" textLength="16.8" lengthAdjust="spacingAndGlyphs">✓ </text>
+<text x="120.8" y="979" fill="#E6E6E6" textLength="42.0" lengthAdjust="spacingAndGlyphs">Bash </text>
+<text x="162.8" y="979" fill="#8A8A8A" textLength="126.0" lengthAdjust="spacingAndGlyphs">npm test · 1.2s</text>
+<text x="28.4" y="999" fill="#8A8A8A" textLength="75.6" lengthAdjust="spacingAndGlyphs">11:31:03 </text>
+<text x="104.0" y="999" fill="#4EBA65" textLength="16.8" lengthAdjust="spacingAndGlyphs">✓ </text>
+<text x="120.8" y="999" fill="#E6E6E6" textLength="42.0" lengthAdjust="spacingAndGlyphs">Edit </text>
+<text x="162.8" y="999" fill="#8A8A8A" textLength="142.8" lengthAdjust="spacingAndGlyphs">client.ts · 340ms</text>
+</svg>

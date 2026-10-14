@@ -524,8 +524,9 @@ export const register: Register = on => {
     const l = await read($, live)
     const open = await read($, expanded)
     const mode = await read($, view)
-    const cols = e.viewport?.columns ?? 80
-    const rows = e.viewport?.rows ?? 30
+    // the pane's own body, not the whole terminal: docked, it is a column beside the transcript
+    const cols = e.props.bodyColumns || e.viewport?.columns || 80
+    const rows = e.props.scroll?.bodyRows || e.viewport?.rows || 30
 
     const tools = Object.entries(l.tools).sort((a, b) => b[1] - a[1])
     const max = tools[0]?.[1] ?? 1
@@ -586,7 +587,7 @@ export const register: Register = on => {
       const toolW = Math.max(4, ...tools.slice(0, 5).map(([t]) => t.length))
       const toolBar = Math.max(3, inner - toolW - 6)
       const ctxBar = Math.max(5, inner - 6)
-      const limitBar = Math.max(5, fullInner - 40)
+      const limitBar = Math.max(5, fullInner - 44)
       const compactAgents = agentRows.slice(0, Math.max(4, active.length))
       const used = 22 + (l.task ? 5 : 0) + (l.limits.length ? l.limits.length + 3 : 0) + (compactAgents.length ? compactAgents.length + 3 : 0) + (narrow ? 20 : 0)
       const feed = Math.max(3, Math.min(8, rows - used))
@@ -843,14 +844,16 @@ export const register: Register = on => {
             <Text bold>Uso del plan</Text>
             {l.limits.map(x => {
               const used = Math.min(100, Math.max(0, x.percentUsed))
-              const fill = Math.round((used / 100) * barW)
+              // room for the label and the ' 74% usado · 26% libre · reinicia en 23h 59m' tail
+              const planBar = Math.max(6, Math.min(barW, cols - 2 - 18 - 48))
+              const fill = Math.round((used / 100) * planBar)
               const left = Math.max(0, Math.round((100 - x.percentUsed) * 10) / 10)
               const reset = fmtResetIn(x.resetsAt, l.now)
               return (
                 <Text wrap="truncate-end">
                   {'  '}<Text>{limitName(x.kind).padEnd(16)}</Text>
                   <Text color={limitColor(x.percentUsed)}>{'█'.repeat(fill)}</Text>
-                  <Text dimColor>{'░'.repeat(barW - fill)}</Text>
+                  <Text dimColor>{'░'.repeat(planBar - fill)}</Text>
                   <Text> {x.percentUsed}%</Text>
                   <Text dimColor> usado · </Text>
                   <Text color={limitColor(x.percentUsed)} bold>{left}%</Text>
