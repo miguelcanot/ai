@@ -60,14 +60,17 @@ Las skills localizan sus scripts con `${CLAUDE_SKILL_DIR}`, así que funcionan i
 
 | Comando | Efecto |
 |---|---|
-| `/session-info` | Abre el panel **Sesión** y escribe un resumen en el chat. |
+| `/session-info` | Abre el panel **Sesión** en vista compacta (tarjetas) y escribe un resumen en el chat. |
+| `/session-info detalle` | Abre el panel en vista detallada (también acepta `detail`). |
 | `/session-info cerrar` | Cierra el panel (también acepta `close`, o el botón **Cerrar** del panel). |
 
-En el panel, pulsar una herramienta despliega para qué se usó (archivos, comandos, skills); pulsarla otra vez la pliega. Si la terminal es demasiado estrecha el panel no se coloca y el resumen lo avisa: ensancha la ventana y vuelve a ejecutar el comando.
+La vista compacta agrupa los datos en tarjetas con borde: la tarea (el último mensaje que escribiste en el chat), sesión, tiempo, tokens, contexto, uso del plan, herramientas, archivos, agentes y actividad. Desde 70 columnas las tarjetas van en pares; en paneles más estrechos se apilan. Los botones **Detalle** y **Compacta** cambian de vista sin cerrar el panel.
+
+La vista detallada también muestra la tarea en su sección **Tarea**. En ella, pulsar una herramienta despliega para qué se usó (archivos, comandos, skills); pulsarla otra vez la pliega. Si la terminal es demasiado estrecha el panel no se coloca y el resumen lo avisa: ensancha la ventana y vuelve a ejecutar el comando.
 
 ### Ejemplo
 
-Así se ve el panel a mitad de una tarea, con la herramienta `Bash` desplegada (datos inventados):
+Así se ve la vista detallada a mitad de una tarea, con la herramienta `Bash` desplegada (datos inventados):
 
 ![Panel de /session-info: modelo y rama, herramienta en curso, agentes, herramientas con detalle, tokens, uso del plan, archivos modificados y actividad](mods/session-info/docs/panel.svg)
 

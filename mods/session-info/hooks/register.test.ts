@@ -92,6 +92,8 @@ for (const surface of ['terminal', 'desktop'] as const) {
       props: PANE_PROPS,
       requestId: 'session-info',
     })
+    // the tool breakdown lives in the detail view
+    await pane.press({ key: 'view' })
     // the activity log already names each call; expanding adds the breakdown rows (findAll counts their ancestors too)
     const docs = async () => (await pane.findAll({ text: /remotion-docs/ })).length
     const before = await docs()
@@ -105,6 +107,45 @@ for (const surface of ['terminal', 'desktop'] as const) {
     expect(await docs()).toBe(before)
   })
 }
+
+test('the pane opens as compact cards and switches to the detail list', async ($, on) => {
+  engine(on)
+
+  await $.command.run(RUN)
+  const pane = await $.ui.mount({ plugin: 'session-info', surface: 'terminal', component: 'Pane', props: PANE_PROPS, requestId: 'session-info' })
+
+  expect(await pane.find({ text: /Contexto/ })).toBeDefined()
+  expect(await pane.find({ text: /Detalle/ })).toBeDefined()
+  expect(await pane.find({ text: /Uso del plan|Tokens/ })).toBeDefined()
+
+  await pane.press({ key: 'view' })
+  expect(await pane.find({ text: /Compacta/ })).toBeDefined()
+  expect(await pane.find({ text: /llamadas/ })).toBeDefined()
+})
+
+test('/session-info detalle opens the detail list', async ($, on) => {
+  engine(on)
+
+  await $.command.run({ ...RUN, args: 'detalle' })
+  const pane = await $.ui.mount({ plugin: 'session-info', surface: 'terminal', component: 'Pane', props: PANE_PROPS, requestId: 'session-info' })
+
+  expect(await pane.find({ text: /Compacta/ })).toBeDefined()
+})
+
+test('the last chat request shows as the task, not the pane command', async ($, on) => {
+  engine(on)
+  on('prompt.submit', (_$, e) => ({ text: e.text }))
+
+  const typed = { wait: false, origin: { kind: 'composer' as const } }
+  await $.prompt.submit({ ...typed, text: 'Agrega   paginación al listado de pedidos' })
+  await $.prompt.submit({ ...typed, text: '/session-info' })
+  await $.prompt.submit({ wait: false, origin: { kind: 'task-notification' }, text: '<task-notification>agente terminó</task-notification>' })
+  const { text } = await $.command.run(RUN)
+  expect(text).toContain('Tarea: Agrega paginación al listado de pedidos')
+
+  const pane = await $.ui.mount({ plugin: 'session-info', surface: 'terminal', component: 'Pane', props: PANE_PROPS, requestId: 'session-info' })
+  expect(await pane.find({ text: /paginación al listado/ })).toBeDefined()
+})
 
 test('plan windows show used and available for the session and the week', async ($, on) => {
   engine(on)
@@ -128,6 +169,7 @@ test('plan windows show used and available for the session and the week', async 
 test('agents show while running and once they finish', async ($, on) => {
   engine(on)
   on('agent.spawn', () => ({ model: 'claude-haiku-5-5', agentId: 'ag1' }))
+  on('turn.complete', (_$, e) => ({ text: e.answer }))
   on('turn.step', async function* () {
     yield* []
     return {

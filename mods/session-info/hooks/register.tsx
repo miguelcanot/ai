@@ -1,7 +1,7 @@
 import { atom, read, update } from 'claude-code'
-import type { EngineInterface, Register, Timer } from 'claude-code'
+import type { EngineInterface, Register, RenderChildren, Timer } from 'claude-code'
 
-import type { Activity, AgentRun, AgentState, Live, PlanLimit, ToolUse } from '../types'
+import type { Activity, AgentRun, AgentState, Live, PlanLimit, ToolUse, View } from '../types'
 
 const PANE = 'session-info'
 const MAX_EVENTS = 200
@@ -32,7 +32,9 @@ const initial: Live = {
 }
 const live = atom({ plugin: 'session-info', key: 'live' } as const, initial)
 const expanded = atom({ plugin: 'session-info', key: 'expanded' } as const, null)
+const view = atom({ plugin: 'session-info', key: 'view' } as const, 'compact' as View)
 const MAX_DETAILS = 10
+const MAX_TASK = 400
 
 const git = async ($: EngineInterface, argv: string[]) => {
   try {
@@ -227,6 +229,7 @@ const summary = (l: Live) =>
       x => `${limitName(x.kind)}: ${x.percentUsed}% usado, ${Math.max(0, Math.round((100 - x.percentUsed) * 10) / 10)}% disponible${x.resetsAt ? ` · se restablece en ${fmtResetIn(x.resetsAt, l.now)}` : ''}`,
     ),
     `Archivos modificados: ${Object.keys(l.files).length}`,
+    ...(l.task ? [`Tarea: ${short(l.task.text, 120)}`] : []),
     ...(Object.keys(l.agents).length
       ? [
           `Agentes: ${activeAgents(l).length} activos de ${Object.keys(l.agents).length}`,
@@ -261,7 +264,7 @@ export const register: Register = on => {
     await $.command.register({
       name: 'session-info',
       description: 'Panel en vivo de la sesión: modelo, git, herramientas, agentes, tokens, archivos y actividad',
-      argumentHint: '[cerrar]',
+      argumentHint: '[detalle|cerrar]',
       immediate: true,
     })
     const now = await $.clock.now()
@@ -279,6 +282,8 @@ export const register: Register = on => {
       await $.ui.close({ id: PANE })
       return { text: 'Panel de sesión cerrado.' }
     }
+    // compact unless asked for the detail list
+    await update($, view, () => (/^(detalle|detail)$/i.test(e.args.trim()) ? 'detail' : 'compact'))
     const now = await $.clock.now()
     const model = await $.session.model()
     // spread over initial: a state kept from an older version gains the new fields
@@ -294,9 +299,13 @@ export const register: Register = on => {
 
   on('prompt.submit', async ($, e, next) => {
     const now = await $.clock.now()
+    const text = e.text.replace(/\s+/g, ' ').trim()
+    // only what the person typed (here or remotely) is the task: not agent notices, plugins or the pane's own command
+    const typed = e.origin.kind === 'composer' || e.origin.kind === 'bridge'
+    const task = typed && text && !/^\/session-info\b/.test(text) ? { text: short(text, MAX_TASK), at: now } : undefined
     await update($, live, l =>
       push(
-        { ...l, now, isBusy: true },
+        { ...l, now, isBusy: true, task: task ?? l.task },
         { id: `p${now}`, at: now, kind: 'prompt', label: 'prompt', detail: short(e.text, 60), status: 'ok' },
       ),
     )
@@ -514,6 +523,7 @@ export const register: Register = on => {
     const { Box, Text, Button } = $.ui.resolve(e)
     const l = await read($, live)
     const open = await read($, expanded)
+    const mode = await read($, view)
     const cols = e.viewport?.columns ?? 80
     const rows = e.viewport?.rows ?? 30
 
@@ -537,8 +547,158 @@ export const register: Register = on => {
     const agentRows = [...active, ...finished].slice(0, Math.max(MAX_AGENT_ROWS, active.length))
     const agentW = Math.max(4, ...agentRows.map(a => agentLabel(a).length))
     const agentLines = agentRows.length ? agentRows.length + agentRows.filter(a => a.current).length + 2 : 0
-    const fixed = planRows + shownDetails + agentLines + 16 + Math.min(tools.length, 8) + (files.length ? Math.min(files.length, 5) + 2 : 0)
+    const fixed = (l.task ? 4 : 0) + planRows + shownDetails + agentLines + 16 + Math.min(tools.length, 8) + (files.length ? Math.min(files.length, 5) + 2 : 0)
     const room = Math.max(3, rows - fixed)
+
+    if (mode === 'compact') {
+      // cards side by side from 70 columns, stacked below
+      const narrow = cols < 70
+      const half = narrow ? cols - 2 : Math.floor((cols - 3) / 2)
+      const inner = Math.max(10, half - 4)
+      const fullInner = Math.max(10, cols - 6)
+      const bar = (pct: number, w: number, color: string) => {
+        const fill = Math.min(w, Math.max(0, Math.round((pct / 100) * w)))
+        return [<Text color={color}>{'█'.repeat(fill)}</Text>, <Text dimColor>{'░'.repeat(w - fill)}</Text>]
+      }
+      // paired cards take a fixed half so both columns line up; a lone card fills its row
+      const card = (key: string, title: string, accent: string, body: RenderChildren[], extra?: string, paired = true) => (
+        <Box key={key} flexDirection="column" flexGrow={1} width={paired && !narrow ? half : undefined} borderStyle="round" borderColor={accent} paddingX={1}>
+          <Text bold color={accent} wrap="truncate-end">
+            {title}{extra !== undefined && <Text dimColor> {extra}</Text>}
+          </Text>
+          {body}
+        </Box>
+      )
+      const row = (key: string, cards: RenderChildren[]) => (
+        <Box key={key} flexDirection={narrow ? 'column' : 'row'} columnGap={1}>{cards}</Box>
+      )
+      const state = running ? (
+        <Text color="warning" bold wrap="truncate-end">
+          ● {running.label} <Text dimColor>{running.detail} · {fmtMs(Math.max(0, l.now - running.at))}</Text>
+        </Text>
+      ) : l.isBusy ? (
+        <Text color="claude">● pensando…</Text>
+      ) : active.length ? (
+        <Text color="suggestion">◐ esperando a {active.length === 1 ? '1 agente' : `${active.length} agentes`}</Text>
+      ) : (
+        <Text dimColor>○ en espera</Text>
+      )
+      const toolW = Math.max(4, ...tools.slice(0, 5).map(([t]) => t.length))
+      const toolBar = Math.max(3, inner - toolW - 6)
+      const ctxBar = Math.max(5, inner - 6)
+      const limitBar = Math.max(5, fullInner - 40)
+      const compactAgents = agentRows.slice(0, Math.max(4, active.length))
+      const used = 22 + (l.task ? 5 : 0) + (l.limits.length ? l.limits.length + 3 : 0) + (compactAgents.length ? compactAgents.length + 3 : 0) + (narrow ? 20 : 0)
+      const feed = Math.max(3, Math.min(8, rows - used))
+
+      return (
+        <Box flexDirection="column">
+          <Box justifyContent="space-between" paddingX={1}>
+            <Text bold>Sesión</Text>
+            <Box columnGap={1}>
+              <Button key="view" label="Detalle" onPress={() => update($, view, () => 'detail')} />
+              <Button key="close" label="Cerrar" onPress={() => $.ui.close({ id: PANE })} />
+            </Box>
+          </Box>
+
+          {l.task && row('r0', [
+            card('c-task', 'Tarea', 'suggestion', [
+              <Text wrap="wrap">{short(l.task.text, fullInner * 3)}</Text>,
+            ], `hace ${fmtElapsed(l.now - l.task.at)}`, false),
+          ])}
+
+          {row('r1', [
+            card('c-session', 'Sesión', 'claude', [
+              <Text bold wrap="truncate-end">{l.model || '—'}</Text>,
+              <Text wrap="truncate-end">
+                <Text color="suggestion">⎇ {l.branch ?? 'sin git'}</Text>
+                <Text color={l.changes ? 'warning' : 'subtle'}> · {l.changes} cambios</Text>
+              </Text>,
+              state,
+            ]),
+            card('c-time', 'Tiempo', 'suggestion', [
+              <Text bold>⏱ {fmtElapsed(l.now - l.startedAt)}</Text>,
+              <Text dimColor>{l.turns} turnos · {l.steps} respuestas</Text>,
+              <Text dimColor>{countTools(l)} herramientas{l.errors ? ` · ${l.errors} errores` : ''}</Text>,
+            ]),
+          ])}
+
+          {row('r2', [
+            card('c-tokens', 'Tokens', 'success', [
+              <Text>
+                <Text dimColor>costo </Text><Text color="success" bold>{fmtUsd(l.costUsd)}</Text>
+              </Text>,
+              <Text wrap="truncate-end">
+                <Text dimColor>↓</Text>{fmtK(l.tokensIn)} <Text dimColor>↑</Text><Text color="claude">{fmtK(l.tokensOut)}</Text>
+              </Text>,
+              <Text dimColor wrap="truncate-end">caché {fmtK(l.tokensCache)} · escrita {fmtK(l.tokensCacheWrite)}</Text>,
+            ]),
+            card('c-context', 'Contexto', ctxColor, [
+              <Text>{bar(ctxPct, ctxBar, ctxColor)}</Text>,
+              <Text>
+                <Text bold color={ctxColor}>{ctxPct}%</Text>
+                <Text dimColor> · {fmtK(l.contextTokens ?? 0)}/{fmtK(l.contextWindow)}</Text>
+              </Text>,
+            ]),
+          ])}
+
+          {l.limits.length > 0 && row('r3', [
+            card('c-plan', 'Uso del plan', limitColor(Math.max(...l.limits.map(x => x.percentUsed))), l.limits.map(x => {
+              const reset = fmtResetIn(x.resetsAt, l.now)
+              return (
+                <Text wrap="truncate-end">
+                  <Text>{limitName(x.kind).padEnd(16)}</Text>
+                  {bar(x.percentUsed, limitBar, limitColor(x.percentUsed))}
+                  <Text bold color={limitColor(x.percentUsed)}> {x.percentUsed}%</Text>
+                  <Text dimColor>{reset ? ` · reinicia en ${reset}` : ''}</Text>
+                </Text>
+              )
+            }), undefined, false),
+          ])}
+
+          {row('r4', [
+            card('c-tools', 'Herramientas', 'claude', tools.length === 0 ? [<Text dimColor>sin llamadas todavía</Text>] : tools.slice(0, 5).map(([tool, n]) => (
+              <Text wrap="truncate-end">
+                <Text>{tool.padEnd(toolW)} </Text>
+                <Text color="claude">{'█'.repeat(Math.max(1, Math.round((n / max) * toolBar)))}</Text>
+                <Text dimColor> {n}</Text>
+              </Text>
+            )), `${countTools(l)}${l.errors ? ` · ${l.errors} err` : ''}`),
+            card('c-files', 'Archivos', 'diffAdded', files.length === 0 ? [<Text dimColor>sin cambios todavía</Text>] : files.slice(0, 5).map(([path, n]) => (
+              <Text wrap="truncate-start">
+                <Text color="diffAdded">✎</Text> {path} <Text dimColor>×{n}</Text>
+              </Text>
+            )), String(files.length)),
+          ])}
+
+          {compactAgents.length > 0 && row('r5', [
+            card('c-agents', 'Agentes', active.length ? 'warning' : 'subtle', [
+              ...compactAgents.map(a => (
+                <Text wrap="truncate-end">
+                  <Text color={AGENT_COLOR[a.status]}>{AGENT_ICON[a.status]} </Text>
+                  <Text bold={isActive(a)}>{agentLabel(a)} </Text>
+                  <Text>{a.description || '(sin descripción)'}</Text>
+                  <Text dimColor> · {AGENT_WORD[a.status]} {fmtElapsed((a.endedAt ?? l.now) - a.startedAt)} · {a.tools} herr.</Text>
+                  {a.current && <Text color="warning"> · {a.current}</Text>}
+                </Text>
+              )),
+              ...(allAgents.length > compactAgents.length ? [<Text dimColor>… y {allAgents.length - compactAgents.length} más</Text>] : []),
+            ], `${active.length} activos de ${allAgents.length}`, false),
+          ])}
+
+          {row('r6', [
+            card('c-activity', 'Actividad', 'subtle', l.events.length === 0 ? [<Text dimColor>nada aún</Text>] : l.events.slice(-feed).map(a => (
+              <Text wrap="truncate-end">
+                <Text dimColor>{fmtClock(a.at)} </Text>
+                <Text color={a.kind === 'prompt' ? 'suggestion' : COLOR[a.status]}>{a.kind === 'prompt' ? '▶' : ICON[a.status]} </Text>
+                <Text bold={a.kind !== 'tool'}>{a.label} </Text>
+                <Text dimColor>{a.detail}</Text>
+              </Text>
+            )), undefined, false),
+          ])}
+        </Box>
+      )
+    }
 
     return (
       <Box flexDirection="column" paddingX={1}>
@@ -550,7 +710,10 @@ export const register: Register = on => {
             <Text color={l.changes ? 'warning' : 'subtle'}> ({l.changes} cambios)</Text>
             <Text dimColor> · ⏱ {fmtElapsed(l.now - l.startedAt)} · {l.turns} turnos</Text>
           </Text>
-          <Button key="close" label="Cerrar" onPress={() => $.ui.close({ id: PANE })} />
+          <Box columnGap={1}>
+            <Button key="view" label="Compacta" onPress={() => update($, view, () => 'compact')} />
+            <Button key="close" label="Cerrar" onPress={() => $.ui.close({ id: PANE })} />
+          </Box>
         </Box>
 
         <Box marginTop={1}>
@@ -566,6 +729,15 @@ export const register: Register = on => {
             <Text dimColor>○ en espera</Text>
           )}
         </Box>
+
+        {l.task && (
+          <Box marginTop={1} flexDirection="column">
+            <Text bold>Tarea <Text dimColor>hace {fmtElapsed(l.now - l.task.at)}</Text></Text>
+            <Box marginLeft={2}>
+              <Text wrap="wrap" color="suggestion">{short(l.task.text, Math.max(40, (cols - 4) * 2))}</Text>
+            </Box>
+          </Box>
+        )}
 
         {agentRows.length > 0 && (
           <Box marginTop={1} flexDirection="column">

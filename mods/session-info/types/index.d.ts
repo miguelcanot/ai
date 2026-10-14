@@ -69,12 +69,17 @@ export type Live = {
   errors: number
   files: Record<string, number>
   events: Activity[]
+  /** The last request typed in the chat: the task being worked on. */
+  task?: { text: string; at: number }
   /** Subagents and teammates by id, in spawn order. */
   agents: Record<string, AgentRun>
 }
 
+/** How the pane is laid out: compact cards (default) or the full detail list. */
+export type View = 'compact' | 'detail'
+
 declare module 'claude-code' {
   interface PluginState {
-    'session-info': { live: Live; expanded: string | null }
+    'session-info': { live: Live; expanded: string | null; view: View }
   }
 }
