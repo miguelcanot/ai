@@ -70,9 +70,15 @@ La vista detallada también muestra la tarea en su sección **Tarea**. En ella, 
 
 ### Ejemplo
 
-Así se ve la vista detallada a mitad de una tarea, con la herramienta `Bash` desplegada (datos inventados):
+Así se ven las dos vistas a mitad de una tarea (datos inventados).
 
-![Panel de /session-info: modelo y rama, herramienta en curso, agentes, herramientas con detalle, tokens, uso del plan, archivos modificados y actividad](mods/session-info/docs/panel.svg)
+Vista compacta (`/session-info`):
+
+![Vista compacta de /session-info: tarjetas con la tarea, sesión, tiempo, tokens, contexto, uso del plan, herramientas, archivos, agentes y actividad](mods/session-info/docs/panel-compacta.svg)
+
+Vista detallada (`/session-info detalle`):
+
+![Vista detallada de /session-info: modelo y rama, estado, tarea, agentes, herramientas, tokens, uso del plan, archivos modificados y actividad](mods/session-info/docs/panel-detalle.svg)
 
 Mientras hay trabajo en curso, la barra de estado de Claude Code muestra un resumen de una línea:
 
