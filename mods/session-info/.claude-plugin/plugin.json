@@ -1,6 +1,6 @@
 {
   "name": "session-info",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "/session-info: panel en vivo con modelo, git, herramientas, agentes, tokens, archivos y actividad de la sesión",
   "author": { "name": "Miguel Canot" },
   "types": "./types/index.d.ts"
