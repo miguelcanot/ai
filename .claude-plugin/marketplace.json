@@ -1,0 +1,57 @@
+{
+  "name": "devux",
+  "owner": {
+    "name": "Miguel Canot"
+  },
+  "metadata": {
+    "description": "Skills y mods para Claude Code: auditorías legales y de rendimiento de apps, analítica web con consentimiento, revisión de UI y un panel en vivo de la sesión"
+  },
+  "plugins": [
+    {
+      "name": "session-info",
+      "source": "./mods/session-info",
+      "description": "Panel en vivo de la sesión: modelo, git, herramientas, agentes, tokens, archivos y actividad",
+      "license": "MIT"
+    },
+    {
+      "name": "mobile-legal-audit",
+      "source": "./skills/mobile-legal-audit",
+      "strict": false,
+      "description": "Auditoría legal y de políticas de tienda de apps móviles a partir del código (GDPR, CCPA, LGPD, Google Play, App Store, anuncios, propiedad intelectual)",
+      "license": "MIT",
+      "skills": [
+        "./"
+      ]
+    },
+    {
+      "name": "perf-audit",
+      "source": "./skills/perf-audit",
+      "strict": false,
+      "description": "Auditoría de rendimiento: consultas al backend (Express/MongoDB/Mongoose) y tamaño del bundle (Flutter, assets, dependencias, R8)",
+      "license": "MIT",
+      "skills": [
+        "./"
+      ]
+    },
+    {
+      "name": "web-analytics-consent",
+      "source": "./skills/web-analytics-consent",
+      "strict": false,
+      "description": "Google Analytics 4 con banner de cookies (Consent Mode v2) para sitios estáticos",
+      "license": "MIT",
+      "skills": [
+        "./"
+      ]
+    },
+    {
+      "name": "web-design-guidelines",
+      "source": "./skills/web-design-guidelines",
+      "strict": false,
+      "description": "Revisión de UI contra las Web Interface Guidelines de Vercel (copia local, MIT)",
+      "license": "MIT",
+      "skills": [
+        "./"
+      ]
+    }
+  ]
+}

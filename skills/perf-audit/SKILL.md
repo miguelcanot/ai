@@ -20,14 +20,14 @@ Si el usuario solo pidió el análisis, entrega el informe y para ahí. No apliq
 
 ## Fase 1 — Inventario (antes de leer nada)
 
-Corre los scripts que vienen con la skill. Están para que no reescribas los mismos diez one-liners en cada auditoría:
+Corre los scripts que vienen con la skill (en `${CLAUDE_SKILL_DIR}/scripts/`; en `references/` aparecen como `<dir-de-la-skill>/scripts/...`). Están para que no reescribas los mismos diez one-liners en cada auditoría:
 
 ```bash
 # Inventario de imágenes: peso, dimensiones reales y total
-python .claude/skills/perf-audit/scripts/asset_inventory.py assets/
+python "${CLAUDE_SKILL_DIR}/scripts/asset_inventory.py" assets/
 
 # Dependencias declaradas que ningún símbolo usa (acepta la ruta del proyecto Flutter; por defecto, el directorio actual)
-bash .claude/skills/perf-audit/scripts/unused_deps.sh [ruta-al-proyecto]
+bash "${CLAUDE_SKILL_DIR}/scripts/unused_deps.sh" [ruta-al-proyecto]
 ```
 
 Y el mapa del backend. Los comandos asumen el código en `server/src`: cámbialo por la carpeta real del backend (`src/`, `api/`, `backend/src/`…); si no, salen vacíos y parece que no hay nada.

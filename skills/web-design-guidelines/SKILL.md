@@ -1,7 +1,7 @@
 ---
 name: web-design-guidelines
-description: Review UI code for Web Interface Guidelines compliance. Use when asked to "review my UI", "check accessibility", "audit design", "review UX", or "check my site against best practices".
-argument-hint: <file-or-pattern>
+description: Revisa código de UI contra las Web Interface Guidelines de Vercel (accesibilidad, foco, formularios, animación, tipografía, rendimiento, i18n). Úsala cuando el usuario pida "revisar mi UI", "revisar la accesibilidad", "auditar el diseño", "revisar la UX", "comprobar el sitio contra buenas prácticas", o en inglés "review my UI", "check accessibility", "audit design", "review UX", "check my site against best practices".
+argument-hint: <archivo-o-patrón>
 metadata:
   author: vercel
   version: "1.0.0"
@@ -9,31 +9,15 @@ metadata:
 
 # Web Interface Guidelines
 
-Review files for compliance with Web Interface Guidelines.
+Revisa archivos de UI contra las Web Interface Guidelines de Vercel.
 
-## How It Works
+## Cómo funciona
 
-1. Fetch the latest guidelines from the source URL below
-2. Read the specified files (or prompt user for files/pattern)
-3. Check against all rules in the fetched guidelines
-4. Output findings in the terse `file:line` format
+1. Lee las reglas en **`references/guidelines.md`** (copia local; no hace falta red).
+2. Lee los archivos indicados en el argumento. Si no se indicó ninguno, pregunta cuáles revisar.
+3. Contrasta cada archivo con todas las reglas.
+4. Entrega los hallazgos con el formato que define la sección "Output Format" de las reglas: agrupados por archivo, en formato `archivo:línea`, breves.
 
-## Guidelines Source
+## Origen
 
-Fetch fresh guidelines before each review:
-
-```
-https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/command.md
-```
-
-Use WebFetch to retrieve the latest rules. The fetched content contains all the rules and output format instructions.
-
-## Usage
-
-When a user provides a file or pattern argument:
-1. Fetch guidelines from the source URL above
-2. Read the specified files
-3. Apply all rules from the fetched guidelines
-4. Output findings using the format specified in the guidelines
-
-If no files specified, ask the user which files to review.
+Las reglas vienen de [vercel-labs/web-interface-guidelines](https://github.com/vercel-labs/web-interface-guidelines) (`command.md`, commit `434b7f9`), con licencia MIT (ver `LICENSE`). Para actualizarlas, vuelve a copiar ese archivo en `references/guidelines.md`, quitando el frontmatter y la línea `$ARGUMENTS`.
