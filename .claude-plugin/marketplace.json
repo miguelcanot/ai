@@ -24,6 +24,16 @@
       ]
     },
     {
+      "name": "legal-pages",
+      "source": "./skills/legal-pages",
+      "strict": false,
+      "description": "Páginas legales (privacidad, términos o licencia, cookies) redactadas a partir de lo que hace el código, para apps de escritorio, web/SaaS, extensiones y CLIs",
+      "license": "MIT",
+      "skills": [
+        "./"
+      ]
+    },
+    {
       "name": "perf-audit",
       "source": "./skills/perf-audit",
       "strict": false,

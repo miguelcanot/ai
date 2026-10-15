@@ -9,6 +9,7 @@ Skills y mods propios para [Claude Code](https://claude.com/claude-code), public
 | Skill | Para qué sirve |
 |---|---|
 | [`mobile-legal-audit`](skills/mobile-legal-audit/SKILL.md) | Auditoría de cumplimiento legal y de políticas de tienda (Google Play, App Store) de apps móviles, contrastando el código real contra GDPR, CCPA, LGPD, Ley 172-13 de RD, consentimiento de anuncios, suscripciones y propiedad intelectual. Incluye scripts de inventario de SDKs y de medios externos. |
+| [`legal-pages`](skills/legal-pages/SKILL.md) | Redacta la política de privacidad, los términos de uso o licencia y la política de cookies de un producto (escritorio, web/SaaS, extensión, CLI, landing) a partir de lo que el código envía y guarda, y las enlaza desde el sitio y la app. Cubre apps local-first, servidores de licencias, integraciones con cuentas del usuario, IA con clave propia y sitios sin cookies. Incluye un script de inventario y una plantilla HTML. |
 | [`perf-audit`](skills/perf-audit/SKILL.md) | Auditoría de rendimiento: consultas al backend (Express/MongoDB/Mongoose: N+1, índices, `.lean()`, payloads) y tamaño del bundle (Flutter, assets, dependencias sin uso, R8). Mide primero y entrega un informe con cifras y orden sugerido. Incluye scripts de inventario de assets, optimización de imágenes, dependencias sin uso y desglose de `.aab`/`.apk`. |
 | [`web-analytics-consent`](skills/web-analytics-consent/SKILL.md) | Instala Google Analytics 4 con banner de cookies (Consent Mode v2) en un sitio estático y actualiza la política de privacidad. |
 | [`web-design-guidelines`](skills/web-design-guidelines/SKILL.md) | Revisión de UI contra las Web Interface Guidelines de Vercel (copia local, licencia MIT de Vercel Labs). |
@@ -28,6 +29,7 @@ claude plugin marketplace add miguelcanot/ai
 
 claude plugin install session-info@devux
 claude plugin install mobile-legal-audit@devux
+claude plugin install legal-pages@devux
 claude plugin install perf-audit@devux
 claude plugin install web-analytics-consent@devux
 claude plugin install web-design-guidelines@devux
@@ -44,7 +46,7 @@ Las skills localizan sus scripts con `${CLAUDE_SKILL_DIR}`, así que funcionan i
 - **`mobile-legal-audit`**: Python 3. Los scripts reciben la raíz del proyecto auditado:
   - `sdk_inventory.py <raíz>`: SDKs, permisos y piezas de cumplimiento.
   - `external_media.py <raíz> [--all]`: medios cargados desde dominios de terceros (`--all` incluye también APIs y documentación).
-- **`perf-audit`**: Python 3 (`optimize_images.py` además necesita Pillow: `pip install Pillow`) y bash para `unused_deps.sh`. Los comandos de ejemplo del backend asumen el código en `server/src`; ajústalo a la carpeta real del proyecto. Scripts:
+- **`legal-pages`**: Python 3. `inventory.py <raíz> [--exclude RUTA ...] [--max-hits N]` lista hosts externos, recursos de terceros de las páginas web, almacenamiento local, cookies, IPs, telemetría y pagos, con `archivo:línea` (`--exclude` para maquetas y textos legales ya escritos). Si el sitio no tiene layout propio, las páginas parten de `assets/legal-page.template.html`.- **`perf-audit`**: Python 3 (`optimize_images.py` además necesita Pillow: `pip install Pillow`) y bash para `unused_deps.sh`. Los comandos de ejemplo del backend asumen el código en `server/src`; ajústalo a la carpeta real del proyecto. Scripts:
 
   | Script | Uso |
   |---|---|
