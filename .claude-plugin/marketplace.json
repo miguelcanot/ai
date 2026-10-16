@@ -14,6 +14,12 @@
       "license": "MIT"
     },
     {
+      "name": "attachments",
+      "source": "./mods/attachments",
+      "description": "/adjuntos: panel de archivos adjuntos; arrastra archivos o carpetas de cualquier lugar y Claude trabaja con ellos sin copiarlos",
+      "license": "MIT"
+    },
+    {
       "name": "mobile-legal-audit",
       "source": "./skills/mobile-legal-audit",
       "strict": false,

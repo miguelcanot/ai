@@ -52,7 +52,18 @@ Agents are tracked in `live.agents` from `agent.spawn` (type, description, model
 
 Runtime constraints (from the generated declarations): the hooks module runs in its own sandbox — no DOM, no Node, no `require`, no dynamic `import()`. External processes go through `$.process.run`; UI elements come from `$.ui.resolve(e)`, not globals. JSX compiles against the global `h`/`Fragment`. Atom `plugin`/`key` and command `name` must be string literals so the validator can read them.
 
-Commands (run from repo root):
+## Mods (`mods/attachments`)
+
+`/adjuntos`: an attachments pane, like the chips in the VS Code chat. State is one atom, `files` (`Attachment[]`, typed in `types/index.d.ts`); all logic in `hooks/register.tsx`:
+
+- `prompt.edit` — a paste (no `e.key`) that is only absolute paths (`pastedPaths`: quoted, backslash-escaped spaces, `file://`) all of which `$.fs.stat` as file or dir is consumed (`{ text: e.text, cursor: e.cursor }` without `next`): the paths go to the pane, which opens. Dragging onto a terminal is such a paste (VS Code's terminal with PowerShell pastes `& 'path'`). Ctrl+V with copied files never reaches the mod (the terminal keeps the key and, with no text on the clipboard, sends nothing), so `/adjuntos pegar` and the pane's **Pegar** button read the clipboard's file list instead (`clipboardPaths` via `$.process.run`, readers tried in order: PowerShell `Clipboard.GetFileDropList()` or a copied image saved as PNG to `%TEMP%`; `osascript`, `wl-paste`, `xclip`). In the PowerShell script `elseif` must not follow a `;` (a test guards it).
+- `command.run` `adjuntos` — opens the pane, adds paths, `vaciar`, `cerrar`.
+- `prompt.submit` — while any are attached, appends `contextOf(files)` (paths, type, size, hints for video/audio/Office) to `e.context` on every prompt.
+- `tool.check` — `allow` for Read (`file_path`) / Glob / Grep (`path`) on an attached file or under an attached folder (`isAttached`: case-insensitive drive, any `..` segment refused); everything else falls through.
+
+`prompt.edit` cannot be raised from `$` in tests, so the parsing helpers are exported and tested directly; the rest goes through `$.command.run`, `$.prompt.submit` and `$.tool.check` with a stubbed `fs.stat`.
+
+Commands (run from repo root; same for `mods/attachments`):
 
 ```bash
 claude plugin validate .                   # static check of the root marketplace

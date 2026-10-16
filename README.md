@@ -19,6 +19,7 @@ Skills y mods propios para [Claude Code](https://claude.com/claude-code), public
 | Mod | Para qué sirve |
 |---|---|
 | [`session-info`](mods/session-info) | Comando `/session-info`: panel en vivo con modelo, rama de git, herramientas usadas, agentes en curso (tipo, tarea, estado, herramienta actual, tokens), tokens, costo, límites del plan, archivos modificados y actividad de la sesión. |
+| [`attachments`](mods/attachments) | Comando `/adjuntos`: panel de archivos adjuntos. Arrastra archivos o carpetas de cualquier lugar a la terminal y Claude trabaja con ellos en cada petición, sin copiarlos al proyecto ni pedir permiso para leerlos. |
 
 ## Instalación
 
@@ -28,6 +29,7 @@ El repositorio es un marketplace de plugins de Claude Code llamado **`devux`**. 
 claude plugin marketplace add miguelcanot/ai
 
 claude plugin install session-info@devux
+claude plugin install attachments@devux
 claude plugin install mobile-legal-audit@devux
 claude plugin install legal-pages@devux
 claude plugin install perf-audit@devux
@@ -89,6 +91,39 @@ Mientras hay trabajo en curso, la barra de estado de Claude Code muestra un resu
 ```
 
 Iconos: `●` en curso, `✓` terminado, `✗` error, `⊘` denegado o detenido, `◐` esperando, `▶` prompt. Las barras de contexto y de plan cambian de color (verde → amarillo → rojo) al acercarse al límite.
+
+## Uso de `attachments`
+
+Arrastra archivos o carpetas desde el explorador a la terminal de Claude Code (en vez de pegarse como texto, se añaden al panel **Adjuntos**, que se abre solo), o cópialos en el explorador y pulsa **Pegar** en el panel o escribe `/adjuntos pegar`. Ctrl+V no sirve para esto: la terminal se queda la tecla y, si lo copiado es un archivo, no envía nada. En Windows, una imagen copiada (una captura, una imagen del navegador) se guarda como PNG en la carpeta temporal y se adjunta. Después pide lo que quieras ("resume los adjuntos", "compara el PDF con la hoja de cálculo"): Claude ve la lista en cada petición y los lee desde su ruta, sin copiarlos al proyecto y sin pedirte permiso para leerlos.
+
+| Comando | Efecto |
+|---|---|
+| `/adjuntos` | Abre el panel. |
+| `/adjuntos "C:/Mis docs/informe.pdf" …` | Añade rutas sin arrastrar. |
+| `/adjuntos pegar` | Añade los archivos copiados en el portapapeles (también el botón **Pegar**). |
+| `/adjuntos vaciar` | Quita todos los adjuntos (también el botón **Vaciar**). |
+| `/adjuntos cerrar` | Cierra el panel; los adjuntos se mantienen. |
+
+En la terminal de VS Code puedes tener un atajo para pegar adjuntos añadiendo esto a tu `keybindings.json` (úsalo con el prompt vacío, porque escribe el comando detrás de lo que haya):
+
+```json
+{
+  "key": "ctrl+alt+v",
+  "command": "workbench.action.terminal.sendSequence",
+  "args": { "text": "/adjuntos pegar\r" },
+  "when": "terminalFocus"
+}
+```
+
+Cada fila del panel tiene un botón **Quitar**. Los adjuntos duran toda la sesión hasta que los quites.
+
+| Tipo | Qué hace Claude |
+|---|---|
+| Texto, código, CSV, JSON, PDF, imágenes | Los lee con Read. |
+| Carpetas | Busca dentro con Glob/Grep y lee lo que necesite. |
+| Video, audio, Office, comprimidos, binarios | Recibe ruta, tipo y tamaño, con una pista de cómo procesarlos (p. ej. ffmpeg para video). |
+
+El permiso automático solo cubre leer (Read, Glob, Grep) esas rutas exactas o lo que haya dentro de una carpeta adjunta. El mod solo actúa si todo lo pegado son rutas absolutas que existen; cualquier otro texto se pega normal. Entiende las rutas entre comillas de Windows Terminal, los espacios escapados de macOS y las URL `file://`.
 
 ## Desarrollo
 
